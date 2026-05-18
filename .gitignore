@@ -24,3 +24,9 @@ frontend/.env.local
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ── IDEs and Editors ───────────────────────────────────────
+.claude
+
+# ── Local dev scripts (never committed) ────────────────────
+git_debug_home.py
