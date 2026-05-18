@@ -75,6 +75,7 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
   }
 
   const ringOffset = CIRCUMFERENCE * (1 - progress)
+  // Use CSS-var strings — applied via style prop (not SVG attr) so they resolve correctly
   const ringColour =
     pendingLetter === 'del'   ? 'var(--red)'   :
     pendingLetter === 'space' ? 'var(--green)'  : 'var(--blue)'
@@ -103,13 +104,13 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
             style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}
             viewBox="0 0 68 68"
           >
-            {/* Track */}
+            {/* Track — style prop so CSS var resolves inside SVG */}
             <circle cx="34" cy="34" r={RADIUS} fill="none"
-              stroke="var(--shadow-dark)" strokeWidth="4" />
-            {/* Fill */}
+              style={{ stroke: 'var(--shadow-dark)', strokeWidth: 4 }} />
+            {/* Fill — style prop (not attribute) so CSS vars resolve */}
             <motion.circle cx="34" cy="34" r={RADIUS}
-              fill="none" stroke={ringColour} strokeWidth="4"
-              strokeLinecap="round"
+              fill="none"
+              style={{ stroke: ringColour, strokeWidth: 4, strokeLinecap: 'round' }}
               strokeDasharray={CIRCUMFERENCE}
               animate={{ strokeDashoffset: ringOffset }}
               transition={{ duration: 0.05 }}

@@ -1,53 +1,100 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════
-   SIGNBRIDGE — Dark Navy Neumorphism Design System
-   Base color : #1c2d4f
-   Shadow dark: #111d35   (base darkened ~15%)
-   Shadow light: #27416b  (base lightened ~15%)
-   Accent     : #34d399   (medical emerald)
-   Secondary  : #60a5fa   (trustworthy blue)
+   SIGNBRIDGE — Neumorphic Design System
+   Dual-theme: dark (default) + light
+   Shadow math based on neumorphism.io
+
+   DARK  base: #2d2d2d  |  dark shadow: #1a1a1a  |  lite shadow: #404040
+   LIGHT base: #e0e0e0  |  dark shadow: #bebebe  |  lite shadow: #ffffff
+   Accent green (dark):  #34d399  (light): #059669
 ═══════════════════════════════════════════════════════════ */
 
 /* ── Reset ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ══════════════════════════════════════════════════════════
+   DARK THEME (default)
+══════════════════════════════════════════════════════════ */
 :root {
-  --base:        #1c2d4f;
-  --base-deep:   #162440;   /* slightly deeper, for inset floors */
-  --shadow-dark: #111d35;
-  --shadow-lite: #27416b;
+  color-scheme: dark;
 
-  --text-primary:   #ccd9f0;
-  --text-secondary: #6b85a8;
-  --text-muted:     #3d5270;
+  --base:        #2d2d2d;
+  --base-deep:   #252525;
+  --shadow-dark: #1a1a1a;
+  --shadow-lite: #404040;
+  --display-bg:  #111111;
 
-  --green:      #34d399;
-  --green-dim:  #1a6649;
-  --green-glow: rgba(52, 211, 153, 0.30);
+  --text-primary:   #e2e2e2;
+  --text-secondary: #9a9a9a;
+  --text-muted:     #555555;
 
-  --blue:       #60a5fa;
-  --blue-glow:  rgba(96, 165, 250, 0.25);
+  --green:       #34d399;
+  --green-dim:   #1a4032;
+  --green-glow:  rgba(52, 211, 153, 0.25);
+  --green-border:rgba(52, 211, 153, 0.22);
 
-  --amber:      #fbbf24;
-  --red:        #f87171;
-  --red-glow:   rgba(248, 113, 113, 0.25);
+  --blue:        #60a5fa;
+  --blue-glow:   rgba(96, 165, 250, 0.22);
 
-  /* ── Neumorphic shadows ── */
-  --shadow-raised-sm:  4px  4px 10px var(--shadow-dark), -4px  -4px 10px var(--shadow-lite);
-  --shadow-raised:     8px  8px 20px var(--shadow-dark), -8px  -8px 20px var(--shadow-lite);
-  --shadow-raised-lg: 12px 12px 28px var(--shadow-dark),-12px -12px 28px var(--shadow-lite);
-  --shadow-inset:     inset 6px  6px 14px var(--shadow-dark), inset -6px  -6px 14px var(--shadow-lite);
-  --shadow-inset-sm:  inset 3px  3px  8px var(--shadow-dark), inset -3px  -3px  8px var(--shadow-lite);
-  --shadow-inset-lg:  inset 8px  8px 20px var(--shadow-dark), inset -8px  -8px 20px var(--shadow-lite);
+  --amber:       #fbbf24;
+  --red:         #f87171;
+  --red-glow:    rgba(248, 113, 113, 0.22);
+  --red-border:  rgba(248, 113, 113, 0.20);
+
+  /* ── Neumorphic shadow tokens (neumorphism.io math) ── */
+  --shadow-raised-sm:  6px  6px 12px var(--shadow-dark), -6px  -6px 12px var(--shadow-lite);
+  --shadow-raised:    10px 10px 20px var(--shadow-dark),-10px -10px 20px var(--shadow-lite);
+  --shadow-raised-lg: 16px 16px 32px var(--shadow-dark),-16px -16px 32px var(--shadow-lite);
+
+  --shadow-inset-sm:  inset  4px  4px  8px var(--shadow-dark), inset  -4px  -4px  8px var(--shadow-lite);
+  --shadow-inset:     inset  6px  6px 14px var(--shadow-dark), inset  -6px  -6px 14px var(--shadow-lite);
+  --shadow-inset-lg:  inset 10px 10px 20px var(--shadow-dark), inset -10px -10px 20px var(--shadow-lite);
+
+  /* theme toggle icon hint */
+  --toggle-icon: '☀';
 }
 
+/* ══════════════════════════════════════════════════════════
+   LIGHT THEME
+══════════════════════════════════════════════════════════ */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --base:        #e0e0e0;
+  --base-deep:   #d4d4d4;
+  --shadow-dark: #bebebe;
+  --shadow-lite: #ffffff;
+  --display-bg:  #c0c0c0;
+
+  --text-primary:   #2a2a2a;
+  --text-secondary: #555555;
+  --text-muted:     #999999;
+
+  --green:       #059669;
+  --green-dim:   #d1fae5;
+  --green-glow:  rgba(5, 150, 105, 0.18);
+  --green-border:rgba(5, 150, 105, 0.25);
+
+  --blue:        #2563eb;
+  --blue-glow:   rgba(37, 99, 235, 0.18);
+
+  --amber:       #d97706;
+  --red:         #dc2626;
+  --red-glow:    rgba(220, 38, 38, 0.18);
+  --red-border:  rgba(220, 38, 38, 0.22);
+
+  --toggle-icon: '🌙';
+}
+
+/* ── Base styles ───────────────────────────────────────── */
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--base);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root { min-height: 100vh; }
@@ -62,55 +109,62 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
 /* ═══════════════════════════════════════════════════════════
-   NEUMORPHIC UTILITY CLASSES
+   NEUMORPHIC SURFACE CLASSES
+   All surfaces use the same --base background so shadows read correctly
 ═══════════════════════════════════════════════════════════ */
 
-/* Raised — element sits above surface */
+/* Raised — sits above the surface */
 .neu {
   background: var(--base);
   box-shadow: var(--shadow-raised);
   border-radius: 20px;
+  transition: box-shadow 0.25s ease, background-color 0.3s ease;
 }
 .neu-sm {
   background: var(--base);
   box-shadow: var(--shadow-raised-sm);
   border-radius: 14px;
+  transition: box-shadow 0.25s ease, background-color 0.3s ease;
 }
 .neu-lg {
   background: var(--base);
   box-shadow: var(--shadow-raised-lg);
   border-radius: 28px;
+  transition: box-shadow 0.25s ease, background-color 0.3s ease;
 }
 
-/* Inset — element is pressed into the surface */
+/* Inset — pressed into the surface */
 .neu-inset {
   background: var(--base-deep);
   box-shadow: var(--shadow-inset);
   border-radius: 16px;
+  transition: box-shadow 0.25s ease, background-color 0.3s ease;
 }
 .neu-inset-sm {
   background: var(--base-deep);
   box-shadow: var(--shadow-inset-sm);
   border-radius: 10px;
+  transition: box-shadow 0.25s ease, background-color 0.3s ease;
 }
 .neu-inset-lg {
   background: var(--base-deep);
   box-shadow: var(--shadow-inset-lg);
   border-radius: 20px;
+  transition: box-shadow 0.25s ease, background-color 0.3s ease;
 }
 
 /* ── Buttons ───────────────────────────────────────────── */
 .neu-btn {
   background: var(--base);
   box-shadow: var(--shadow-raised-sm);
-  border-radius: 14px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: box-shadow 0.15s ease, transform 0.1s ease;
+  transition: box-shadow 0.18s ease, transform 0.1s ease, background-color 0.3s ease;
   color: var(--text-secondary);
   border: none;
   outline: none;
 }
-.neu-btn:hover {
+.neu-btn:hover  {
   box-shadow: var(--shadow-raised);
   color: var(--text-primary);
 }
@@ -119,21 +173,22 @@ body {
   transform: scale(0.97);
 }
 
-/* Green primary button */
+/* Green primary action button */
 .neu-btn-primary {
   background: var(--base);
-  box-shadow: var(--shadow-raised-sm), 0 0 16px var(--green-glow);
-  border-radius: 14px;
-  border: 1px solid rgba(52, 211, 153, 0.18);
+  box-shadow: var(--shadow-raised-sm), 0 0 18px var(--green-glow);
+  border-radius: 12px;
+  border: 1px solid var(--green-border);
   color: var(--green);
   cursor: pointer;
-  transition: box-shadow 0.2s ease, transform 0.1s ease;
+  outline: none;
+  transition: box-shadow 0.22s ease, transform 0.12s ease, background-color 0.3s ease;
 }
 .neu-btn-primary:hover {
-  box-shadow: var(--shadow-raised), 0 0 24px var(--green-glow);
+  box-shadow: var(--shadow-raised), 0 0 28px var(--green-glow);
 }
 .neu-btn-primary:active {
-  box-shadow: var(--shadow-inset-sm), 0 0 10px var(--green-glow);
+  box-shadow: var(--shadow-inset-sm), 0 0 12px var(--green-glow);
   transform: scale(0.97);
 }
 .neu-btn-primary:disabled {
@@ -147,25 +202,47 @@ body {
 .neu-btn-danger {
   background: var(--base);
   box-shadow: var(--shadow-raised-sm);
-  border-radius: 14px;
+  border-radius: 12px;
   border: 1px solid transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: box-shadow 0.15s, color 0.15s, border-color 0.15s;
+  outline: none;
+  transition: box-shadow 0.18s ease, color 0.18s ease, border-color 0.18s ease, background-color 0.3s ease;
 }
 .neu-btn-danger:hover {
   color: var(--red);
-  border-color: rgba(248, 113, 113, 0.18);
-  box-shadow: var(--shadow-raised-sm), 0 0 12px var(--red-glow);
+  border-color: var(--red-border);
+  box-shadow: var(--shadow-raised-sm), 0 0 14px var(--red-glow);
 }
-.neu-btn-danger:active  { box-shadow: var(--shadow-inset-sm); transform: scale(0.97); }
+.neu-btn-danger:active { box-shadow: var(--shadow-inset-sm); transform: scale(0.97); }
 .neu-btn-danger:disabled { cursor: not-allowed; color: var(--text-muted); }
 
-/* ── Medical LED display ───────────────────────────────── */
+/* Theme toggle — special circular raised button */
+.neu-toggle {
+  background: var(--base);
+  box-shadow: var(--shadow-raised-sm);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  outline: none;
+  transition: box-shadow 0.18s ease, color 0.18s ease, transform 0.12s ease, background-color 0.3s ease;
+}
+.neu-toggle:hover {
+  box-shadow: var(--shadow-raised);
+  color: var(--text-primary);
+}
+.neu-toggle:active {
+  box-shadow: var(--shadow-inset-sm);
+  transform: scale(0.93);
+}
+
+/* ── Camera / medical display ──────────────────────────── */
 .med-display {
-  background: #0f1a2e;
+  background: var(--display-bg);
   box-shadow: var(--shadow-inset-lg);
   border-radius: 16px;
+  transition: background-color 0.3s ease;
 }
 
 /* ── LED indicators ────────────────────────────────────── */
@@ -173,26 +250,30 @@ body {
   width: 8px; height: 8px;
   border-radius: 50%;
   display: inline-block;
+  flex-shrink: 0;
 }
 .led-green {
   background: var(--green);
-  box-shadow: 0 0 6px var(--green), 0 0 14px var(--green-glow);
+  box-shadow: 0 0 5px var(--green), 0 0 12px var(--green-glow);
 }
 .led-amber {
   background: var(--amber);
-  box-shadow: 0 0 6px var(--amber);
+  box-shadow: 0 0 5px var(--amber);
 }
 .led-red {
   background: var(--red);
-  box-shadow: 0 0 6px var(--red);
+  box-shadow: 0 0 5px var(--red);
 }
-.led-off { background: var(--text-muted); box-shadow: none; }
+.led-off {
+  background: var(--text-muted);
+  box-shadow: none;
+}
 
-/* ── Typography ────────────────────────────────────────── */
+/* ── Typography helpers ────────────────────────────────── */
 .label {
-  font-size: 0.65rem;
+  font-size: 0.63rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
@@ -201,60 +282,94 @@ body {
   font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace;
 }
 
-/* Green glowing text (letter readout) */
+/* Glowing accent text */
 .glow-green {
   color: var(--green);
-  text-shadow: 0 0 10px var(--green-glow), 0 0 24px rgba(52,211,153,0.15);
+  text-shadow: 0 0 10px var(--green-glow), 0 0 22px var(--green-glow);
 }
-.glow-blue  { color: var(--blue); text-shadow: 0 0 10px var(--blue-glow); }
-.glow-red   { color: var(--red);  text-shadow: 0 0 10px var(--red-glow);  }
+.glow-blue { color: var(--blue); text-shadow: 0 0 10px var(--blue-glow); }
+.glow-red  { color: var(--red);  text-shadow: 0 0 10px var(--red-glow);  }
 
 /* ── Divider ───────────────────────────────────────────── */
 .neu-divider {
   height: 1px;
-  background: linear-gradient(90deg,
-    transparent, var(--shadow-dark) 20%, var(--shadow-lite) 50%,
-    var(--shadow-dark) 80%, transparent
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--shadow-dark) 20%,
+    var(--shadow-lite) 50%,
+    var(--shadow-dark) 80%,
+    transparent
   );
-  margin: 0 8px;
+  margin: 0 16px;
+  transition: background 0.3s ease;
 }
 
-/* ── Animations ────────────────────────────────────────── */
-@keyframes pulse-led {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-.led-pulse { animation: pulse-led 1.4s ease-in-out infinite; }
-
-@keyframes mic-ring {
-  0%   { box-shadow: var(--shadow-raised), 0 0 0 0   var(--green-glow); }
-  70%  { box-shadow: var(--shadow-raised), 0 0 0 14px rgba(52,211,153,0); }
-  100% { box-shadow: var(--shadow-raised), 0 0 0 0   rgba(52,211,153,0); }
-}
-.mic-ring { animation: mic-ring 1.6s ease-out infinite; }
-
-@keyframes shimmer-bar {
-  from { background-position: -200% center; }
-  to   { background-position:  200% center; }
-}
-.confidence-fill {
-  background: linear-gradient(90deg,
-    var(--green-dim) 0%, var(--green) 45%, #6ee7b7 55%, var(--green-dim) 100%);
-  background-size: 200% auto;
-  animation: shimmer-bar 2s linear infinite;
-}
-
-@keyframes blink-cursor {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
-.cursor { animation: blink-cursor 1s step-end infinite; }
-
-/* ── Confidence bar track ──────────────────────────────── */
+/* ── Confidence bar ────────────────────────────────────── */
 .confidence-track {
   background: var(--base-deep);
   box-shadow: var(--shadow-inset-sm);
   border-radius: 99px;
   overflow: hidden;
   height: 6px;
+}
+
+.confidence-fill {
+  background: linear-gradient(
+    90deg,
+    var(--green-dim) 0%,
+    var(--green)     45%,
+    color-mix(in srgb, var(--green) 60%, white) 55%,
+    var(--green-dim) 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer-bar 2s linear infinite;
+  height: 100%;
+  border-radius: 99px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════════════════════ */
+
+/* LED pulse */
+@keyframes pulse-led {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+.led-pulse { animation: pulse-led 1.4s ease-in-out infinite; }
+
+/* Mic active ring (expands outward from button) */
+@keyframes mic-ring {
+  0%   { box-shadow: var(--shadow-raised), 0 0 0  0px var(--green-glow); }
+  70%  { box-shadow: var(--shadow-raised), 0 0 0 16px rgba(52,211,153,0); }
+  100% { box-shadow: var(--shadow-raised), 0 0 0  0px rgba(52,211,153,0); }
+}
+/* Light mode ring uses the light-mode green glow */
+[data-theme="light"] .mic-ring {
+  animation: mic-ring-light 1.6s ease-out infinite;
+}
+@keyframes mic-ring-light {
+  0%   { box-shadow: var(--shadow-raised), 0 0 0  0px var(--green-glow); }
+  70%  { box-shadow: var(--shadow-raised), 0 0 0 16px rgba(5,150,105,0); }
+  100% { box-shadow: var(--shadow-raised), 0 0 0  0px rgba(5,150,105,0); }
+}
+.mic-ring { animation: mic-ring 1.6s ease-out infinite; }
+
+/* Shimmer on confidence fill */
+@keyframes shimmer-bar {
+  from { background-position: -200% center; }
+  to   { background-position:  200% center; }
+}
+
+/* Text cursor blink */
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.cursor { animation: blink-cursor 1s step-end infinite; }
+
+/* Smooth theme transition on all neu surfaces */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
