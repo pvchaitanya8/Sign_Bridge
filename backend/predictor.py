@@ -32,10 +32,15 @@ MODEL_PATH = os.path.join(BASE_DIR, "model", "asl_model.pkl")
 # ── MediaPipe ─────────────────────────────────────────────────────────────────
 _mp_hands = mp.solutions.hands
 _hands    = _mp_hands.Hands(
-    static_image_mode=False,       # video mode — faster, uses temporal smoothing
+    # static_image_mode=True  → treats every frame independently.
+    # No temporal smoothing means no cross-frame lag — each frame
+    # gets an answer in one inference pass (~15-30 ms).
+    # Trade-off: slightly more CPU per frame, but we're only processing
+    # one frame at a time (back-pressure on the client), so this is fine.
+    static_image_mode=True,
     max_num_hands=1,
-    min_detection_confidence=0.4,  # lower = detect more hands, fewer misses
-    min_tracking_confidence=0.4,
+    min_detection_confidence=0.5,  # slightly higher threshold reduces false positives
+    min_tracking_confidence=0.5,
 )
 
 # ── Model (loaded once, shared across all WebSocket connections) ───────────────

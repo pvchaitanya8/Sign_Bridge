@@ -18,8 +18,11 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react'
 
-const CAPTURE_FPS    = 10   // frames per second sent to backend
-const JPEG_QUALITY   = 0.7  // lower = smaller payload, faster round-trip
+// Capture rate is now a ceiling — back-pressure in useWebSocket means
+// the effective rate equals 1 / (server_round_trip), which is the
+// minimum achievable latency regardless of this value.
+const CAPTURE_FPS    = 15   // poll fast so we catch the server's reply quickly
+const JPEG_QUALITY   = 0.65 // 0.65 → ~30% smaller than 0.7, no visible quality loss for landmark detection
 const VIDEO_WIDTH    = 640
 const VIDEO_HEIGHT   = 480
 
