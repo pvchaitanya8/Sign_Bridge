@@ -53,7 +53,7 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
       setSentence(prev =>
         letter === 'del'   ? prev.slice(0, -1)
         : letter === 'space' ? prev + ' '
-        : prev + letter
+        : prev + letter.toUpperCase()
       )
     }, HOLD_MS)
 
@@ -74,29 +74,40 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
     onSend(sentence.trim()); clearSentence()
   }
 
-  const ringOffset  = CIRCUMFERENCE * (1 - progress)
-  const ringColour  = pendingLetter === 'del' ? '#f87171' : pendingLetter === 'space' ? '#34d399' : '#818cf8'
+  const ringOffset = CIRCUMFERENCE * (1 - progress)
+  const ringColour =
+    pendingLetter === 'del'   ? 'var(--red)'   :
+    pendingLetter === 'space' ? 'var(--green)'  : 'var(--blue)'
   const secondsLeft = ((1 - progress) * HOLD_MS / 1000).toFixed(1)
 
   return (
-    <div className="space-y-3">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-500">
-          Sentence Builder
-        </h2>
-        <span className="text-[10px] text-slate-600">Hold 1.5 s to confirm</span>
+      {/* ── Header ─────────────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span className="label">Sentence Builder</span>
+        <span className="label" style={{ fontSize: '0.58rem', color: 'var(--text-muted)' }}>
+          Hold 1.5 s to confirm
+        </span>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
 
-        {/* Progress ring */}
-        <div className="relative w-16 h-16 flex-shrink-0">
-          <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
-            <circle cx="32" cy="32" r={RADIUS} fill="none"
-              stroke="rgba(255,255,255,0.06)" strokeWidth="4" />
-            <motion.circle cx="32" cy="32" r={RADIUS}
+        {/* ── Progress ring (raised neumorphic disc) ────── */}
+        <div className="neu" style={{
+          width: 68, height: 68, borderRadius: '50%', flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'
+        }}>
+          <svg
+            width="68" height="68"
+            style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}
+            viewBox="0 0 68 68"
+          >
+            {/* Track */}
+            <circle cx="34" cy="34" r={RADIUS} fill="none"
+              stroke="var(--shadow-dark)" strokeWidth="4" />
+            {/* Fill */}
+            <motion.circle cx="34" cy="34" r={RADIUS}
               fill="none" stroke={ringColour} strokeWidth="4"
               strokeLinecap="round"
               strokeDasharray={CIRCUMFERENCE}
@@ -104,80 +115,122 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
               transition={{ duration: 0.05 }}
             />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={pendingLetter ?? 'empty'}
-                initial={{ scale: 0.6, opacity: 0 }}
-                animate={{ scale: 1,   opacity: 1 }}
-                exit={{    scale: 0.6, opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className={cn('text-xl font-bold',
-                  pendingLetter ? 'gradient-text' : 'text-slate-700')}
-              >
-                {!pendingLetter ? '—'
-                  : pendingLetter === 'space' ? '⎵'
-                  : pendingLetter === 'del'   ? '⌫'
-                  : pendingLetter}
-              </motion.span>
-            </AnimatePresence>
-          </div>
+
+          {/* Center letter */}
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={pendingLetter ?? 'empty'}
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1,   opacity: 1 }}
+              exit={{    scale: 0.5, opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="mono"
+              style={{
+                fontSize: pendingLetter ? '1.35rem' : '1rem',
+                fontWeight: 800,
+                color: pendingLetter ? ringColour : 'var(--text-muted)',
+                textShadow: pendingLetter ? `0 0 10px ${ringColour}55` : 'none',
+                position: 'relative', zIndex: 1,
+              }}
+            >
+              {!pendingLetter     ? '—'
+               : pendingLetter === 'space' ? '⎵'
+               : pendingLetter === 'del'   ? '⌫'
+               : pendingLetter.toUpperCase()}
+            </motion.span>
+          </AnimatePresence>
         </div>
 
-        {/* Status + sentence preview */}
-        <div className="flex-1 min-w-0 space-y-1.5">
-          <p className="text-[11px] text-slate-500 h-4">
+        {/* ── Status + sentence preview ─────────────────── */}
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+
+          {/* Status line */}
+          <p className="label" style={{ height: 16, fontSize: '0.6rem', color: 'var(--text-secondary)' }}>
             {pendingLetter
-              ? `Hold "${pendingLetter === 'space' ? 'SPACE' : pendingLetter === 'del' ? 'DEL' : pendingLetter}" — ${secondsLeft}s left`
+              ? `Hold "${pendingLetter === 'space' ? 'SPACE' : pendingLetter === 'del' ? 'DEL' : pendingLetter.toUpperCase()}" — ${secondsLeft}s left`
               : 'Waiting for sign…'}
           </p>
 
-          {/* Mini sentence display */}
-          <div className="h-9 glass rounded-lg px-3 flex items-center overflow-hidden">
+          {/* Inset sentence display */}
+          <div className="neu-inset-sm" style={{
+            height: 40, borderRadius: 10,
+            padding: '0 12px',
+            display: 'flex', alignItems: 'center', overflow: 'hidden',
+          }}>
             {sentence ? (
-              <p className="text-sm text-white tracking-wide truncate font-medium">
+              <p className="mono" style={{
+                fontSize: '0.88rem', fontWeight: 600,
+                color: 'var(--text-primary)',
+                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                letterSpacing: '0.04em',
+              }}>
                 {sentence}
-                <span className="cursor inline-block w-0.5 h-4 bg-indigo-400 ml-0.5 align-middle" />
+                <span className="cursor" style={{
+                  display: 'inline-block', width: 2, height: 14,
+                  background: 'var(--green)', marginLeft: 2,
+                  verticalAlign: 'middle', borderRadius: 1,
+                }} />
               </p>
             ) : (
-              <p className="text-xs text-slate-600 italic">Your sentence appears here…</p>
+              <p className="label" style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>
+                Your sentence appears here…
+              </p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="flex gap-2">
-        <motion.button whileTap={{ scale: 0.95 }}
-          onClick={clearSentence} disabled={!sentence}
-          className={cn(
-            'w-9 h-9 flex items-center justify-center rounded-xl glass transition-colors',
-            sentence ? 'text-red-400 hover:bg-red-500/10' : 'text-slate-700 cursor-not-allowed',
-          )}
+      {/* ── Action buttons ──────────────────────────────── */}
+      <div style={{ display: 'flex', gap: 8 }}>
+
+        {/* Clear */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={clearSentence}
+          disabled={!sentence}
+          className={cn('neu-btn', !sentence && 'cursor-not-allowed')}
+          style={{
+            width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: sentence ? 'var(--red)' : 'var(--text-muted)',
+          }}
+          title="Clear"
         >
           <Trash2 size={14} />
         </motion.button>
 
-        <motion.button whileTap={{ scale: 0.95 }}
-          onClick={copySentence} disabled={!sentence}
-          className={cn(
-            'w-9 h-9 flex items-center justify-center rounded-xl glass transition-colors',
-            sentence ? 'text-slate-400 hover:bg-white/10' : 'text-slate-700 cursor-not-allowed',
-          )}
+        {/* Copy */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={copySentence}
+          disabled={!sentence}
+          className={cn('neu-btn', !sentence && 'cursor-not-allowed')}
+          style={{
+            width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: sentence ? 'var(--text-secondary)' : 'var(--text-muted)',
+          }}
+          title="Copy"
         >
-          {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+          {copied
+            ? <Check size={14} style={{ color: 'var(--green)' }} />
+            : <Copy  size={14} />}
         </motion.button>
 
-        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-          onClick={sendSentence} disabled={!sentence.trim()}
+        {/* Speak & Send */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{   scale: 0.97 }}
+          onClick={sendSentence}
+          disabled={!sentence.trim()}
           className={cn(
-            'flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold transition-all',
-            sentence.trim()
-              ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40'
-              : 'glass text-slate-600 cursor-not-allowed',
+            'flex-1 flex items-center justify-center gap-2',
+            sentence.trim() ? 'neu-btn-primary' : 'neu-btn cursor-not-allowed',
           )}
+          style={{
+            height: 38, fontSize: '0.8rem', fontWeight: 700,
+            letterSpacing: '0.03em',
+          }}
         >
-          <Volume2 size={14} /> Speak &amp; Send
+          <Volume2 size={13} /> Speak &amp; Send
         </motion.button>
       </div>
     </div>
