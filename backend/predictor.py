@@ -77,6 +77,10 @@ def predict_from_bytes(frame_bytes: bytes) -> dict:
     detects no hand we return hand_detected=False without touching
     the classifier. This is more honest than trying to classify absence.
     """
+    # Guard: cv2.imdecode raises cv2.error on empty buffer (not just returns None)
+    if not frame_bytes:
+        return {"hand_detected": False, "letter": None, "confidence": None}
+
     # Decode JPEG bytes → numpy BGR array
     img_array = np.frombuffer(frame_bytes, dtype=np.uint8)
     frame_bgr = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
