@@ -22,12 +22,13 @@
  */
 
 import { useState, useEffect, useRef } from 'react'
-import { Trash2, Copy, Check } from 'lucide-react'
+import { Trash2, Copy, Check, Volume2 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import type { Prediction } from '../types'
 
 interface SentenceBuilderProps {
   prediction: Prediction | null
+  onSend:     (text: string) => void   // fires when user hits "Speak & Send"
 }
 
 const HOLD_MS         = 1500   // ms to hold a sign before it's confirmed
@@ -35,7 +36,7 @@ const MIN_CONFIDENCE  = 0.45   // below this we ignore the prediction
 const RING_RADIUS     = 28     // SVG circle radius (px)
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS
 
-export function SentenceBuilder({ prediction }: SentenceBuilderProps) {
+export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
   const [sentence, setSentence]           = useState('')
   const [pendingLetter, setPendingLetter] = useState<string | null>(null)
   const [progress, setProgress]           = useState(0)   // 0 → 1
@@ -111,6 +112,12 @@ export function SentenceBuilder({ prediction }: SentenceBuilderProps) {
     await navigator.clipboard.writeText(sentence)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const sendSentence = () => {
+    if (!sentence.trim()) return
+    onSend(sentence.trim())
+    clearSentence()
   }
 
   // SVG ring offset — 0 progress = full gap, 1 progress = full ring
@@ -205,26 +212,40 @@ export function SentenceBuilder({ prediction }: SentenceBuilderProps) {
           onClick={clearSentence}
           disabled={!sentence}
           className={cn(
-            'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors',
+            'flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
             sentence
               ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
               : 'bg-slate-800 text-slate-600 cursor-not-allowed',
           )}
         >
-          <Trash2 size={15} /> Clear
+          <Trash2 size={15} />
         </button>
 
         <button
           onClick={copySentence}
           disabled={!sentence}
           className={cn(
-            'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors',
+            'flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
             sentence
-              ? 'bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20'
+              ? 'bg-slate-700 text-slate-300 hover:bg-slate-600'
               : 'bg-slate-800 text-slate-600 cursor-not-allowed',
           )}
         >
-          {copied ? <><Check size={15} /> Copied!</> : <><Copy size={15} /> Copy</>}
+          {copied ? <Check size={15} /> : <Copy size={15} />}
+        </button>
+
+        {/* Primary action — speak the sentence and add to transcript */}
+        <button
+          onClick={sendSentence}
+          disabled={!sentence.trim()}
+          className={cn(
+            'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors',
+            sentence.trim()
+              ? 'bg-indigo-600 text-white hover:bg-indigo-500'
+              : 'bg-slate-800 text-slate-600 cursor-not-allowed',
+          )}
+        >
+          <Volume2 size={15} /> Speak &amp; Send
         </button>
       </div>
     </div>
