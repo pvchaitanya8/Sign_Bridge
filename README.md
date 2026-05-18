@@ -1,36 +1,131 @@
-# Sign Language Translator [V1]
-In this project, machine learning methods will be used to create a sign language translator. This project transforms sign language movements into english text using the input from the device which was enabled with a camera. TensorFlow framework and the Python programming language are used to build the project. 
+# SignBridge
 
-## Requirements
-- [ ] Python 3.6 or higher
-- [ ] TensorFlow
-- [ ] Media pipeline
-- [ ] OpenCV
-- [ ] NumPy
+A real-time, two-way communication aid that bridges the gap between sign language and spoken language.
 
-## Instructions to Run
-1. Clone the repository.
-2. Install the required dependencies.
-3. Unzip the file and set cmd path to it. 
-4. Run the "app.py" python file using CMD:
-```bash
-python app.py
+A deaf or mute person signs into their webcam → the app translates it into text and speaks it aloud. The hearing person speaks back → their words appear as text for the signer to read.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 19 + Vite + TypeScript |
+| Styling | Tailwind CSS v4 + Radix UI |
+| Animations | Framer Motion |
+| Backend | FastAPI (Python 3.11) |
+| Hand Tracking | MediaPipe Hands |
+| Classifier | scikit-learn Random Forest |
+| Real-time | WebSocket |
+| Speech | Web Speech API (TTS + STT) |
+| Deployment | Render (backend) + Vercel (frontend) |
+
+---
+
+## Project Structure
+
+```
+SignBridge/
+├── backend/
+│   ├── dataset/          # ASL training images (not in git — see below)
+│   │   ├── train/        # 87,000 images across 29 classes
+│   │   └── test/         # 28 test images
+│   ├── model/
+│   │   ├── preprocess.py # Extract MediaPipe landmarks → landmarks.csv
+│   │   ├── train.py      # Train Random Forest → asl_model.pkl
+│   │   └── asl_model.pkl # Trained model (not in git)
+│   ├── main.py           # FastAPI app + WebSocket endpoint
+│   ├── requirements.txt
+│   └── venv/             # Python virtual environment (not in git)
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/   # CameraPanel, TranscriptPanel, SentenceBuilder, SpeechInput
+│   │   ├── hooks/        # useWebSocket, useSpeech
+│   │   ├── types/        # Shared TypeScript interfaces
+│   │   ├── lib/          # Utility functions (cn, etc.)
+│   │   └── App.tsx
+│   └── vite.config.ts
+│
+└── README.md
 ```
 
-## Output:
-![Screenshot 2023-09-07 170241](https://github.com/pvchaitanya8/Sign-Language-Translator-V1-/assets/93573686/1d223010-8616-49b8-bdbe-bc92c1224e32)
-![Screenshot 2023-09-07 170206](https://github.com/pvchaitanya8/Sign-Language-Translator-V1-/assets/93573686/6d2dd528-85cc-4846-8b03-1c0586e6682c)
-![Screenshot 2023-09-07 201710](https://github.com/pvchaitanya8/Sign-Language-Translator-V1-/assets/93573686/42308c91-f63c-4e82-b268-7af5a4be9801)
+---
 
 ## Dataset
-The project uses a custom dataset collected from various sources and personally took from my hand gestures. The dataset contains a total of **1000+** images for each gesture in the sign language alphabet and numerical digits. The data has been pre-processed and augmented to improve the model's performance.
 
-## Model
-The project uses a Convolutional Neural Network (CNN) model to classify the sign language gestures. The model is trained using the collected dataset, and the weights are saved after training.
+Uses the [ASL Alphabet dataset](https://www.kaggle.com/datasets/grassknoted/asl-alphabet) from Kaggle.
 
+- **29 classes**: A–Z + `space` + `del` + `nothing`
+- **87,000 training images** (3,000 per class)
+- **28 test images** (1 per class)
 
-## Contribution
-Contributions are welcome! If you want to contribute to the project, please create a pull request with a detailed explanation of the changes.
+The dataset is excluded from git due to size. Download it from Kaggle and place it at:
 
-> We made this project as a team and collected data sets from various sources and analyzed and then generated data sets by our hands as input. Some sample data set were given too in this GitHub repository. We [P.V.Chaitanya](https://github.com/pvchaitanya8), [N.Suryakala](https://github.com/suryakala-1a), [P.G.Alekya](https://github.com/Gowri2003Alekya) worked as a team towards this project
+```
+backend/dataset/train/<CLASS>/   ← training images
+backend/dataset/test/            ← test images
+```
 
+---
+
+## Getting Started
+
+### Backend
+
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate          # Windows
+# source venv/bin/activate     # macOS/Linux
+
+pip install -r requirements.txt
+
+# One-time: generate landmark CSV and train the model
+python model/preprocess.py
+python model/train.py
+
+# Run the API server
+uvicorn main:app --reload --port 8000
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173).
+
+---
+
+## How It Works
+
+1. **MediaPipe Hands** detects 21 hand landmarks (x, y, z) from each webcam frame — 63 numbers total.
+2. A **Random Forest classifier** predicts which ASL letter those 63 numbers represent.
+3. Predictions are streamed to the browser via **WebSocket** in real time.
+4. Letters are accumulated into words in the **sentence builder** (hold a sign for ~1 second to confirm a letter).
+5. The completed sentence is read aloud via the browser's **Text-to-Speech** API.
+6. The hearing person speaks back via **Speech-to-Text**, and their words appear as text.
+
+---
+
+## ASL Classes
+
+`A B C D E F G H I J K L M N O P Q R S T U V W X Y Z space del nothing`
+
+> Note: J and Z involve motion (they're drawn in the air). The static-landmark model handles these with reduced accuracy — this is a known limitation of landmark-only approaches.
+
+---
+
+## Build Phases
+
+- [x] Phase 1 — Project Setup
+- [ ] Phase 2 — Model Training
+- [ ] Phase 3 — Backend API
+- [ ] Phase 4 — Frontend Core
+- [ ] Phase 5 — Speech Features
+- [ ] Phase 6 — UI Polish
+- [ ] Phase 7 — Deployment
