@@ -129,7 +129,7 @@ body {
 .neu-lg {
   background: var(--base);
   box-shadow: var(--shadow-raised-lg);
-  border-radius: 28px;
+  border-radius: 32px;
   transition: box-shadow 0.25s ease, background-color 0.3s ease;
 }
 
@@ -149,7 +149,7 @@ body {
 .neu-inset-lg {
   background: var(--base-deep);
   box-shadow: var(--shadow-inset-lg);
-  border-radius: 20px;
+  border-radius: 22px;
   transition: box-shadow 0.25s ease, background-color 0.3s ease;
 }
 

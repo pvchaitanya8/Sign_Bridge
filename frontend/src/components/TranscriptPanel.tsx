@@ -24,17 +24,28 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
       {/* ── Header ─────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, flexShrink: 0 }}>
-        <span className="label">Conversation</span>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        marginBottom: 14, flexShrink: 0,
+      }}>
+        <span style={{
+          fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.15em',
+          textTransform: 'uppercase', color: 'var(--text-secondary)',
+        }}>
+          Conversation
+        </span>
         <AnimatePresence>
           {messages.length > 0 && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1   }}
               className="neu-inset-sm"
-              style={{ padding: '2px 10px', borderRadius: 8 }}
+              style={{ padding: '3px 12px', borderRadius: 8 }}
             >
-              <span className="label" style={{ fontSize: '0.58rem', color: 'var(--text-secondary)' }}>
+              <span style={{
+                fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em',
+                textTransform: 'uppercase', color: 'var(--text-secondary)',
+              }}>
                 {messages.length} msg{messages.length !== 1 ? 's' : ''}
               </span>
             </motion.div>
@@ -42,10 +53,15 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
         </AnimatePresence>
       </div>
 
-      {/* ── Inset feed area ────────────────────────────── */}
+      {/* ── Scrollable feed ─────────────────────────────── */}
       <div
-        className="neu-inset-lg flex-1 min-h-0"
-        style={{ overflowY: 'auto', padding: '14px 12px', display: 'flex', flexDirection: 'column', gap: 10 }}
+        className="neu-inset-lg"
+        style={{
+          flex: 1, minHeight: 0,
+          overflowY: 'auto',
+          padding: '16px 14px',
+          display: 'flex', flexDirection: 'column', gap: 12,
+        }}
       >
         {/* Empty state */}
         <AnimatePresence>
@@ -56,23 +72,36 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
               exit={{    opacity: 0         }}
               style={{
                 flex: 1, display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center', gap: 12,
+                alignItems: 'center', justifyContent: 'center', gap: 16,
               }}
             >
-              {/* Two raised icon tiles */}
-              <div style={{ display: 'flex', gap: 10 }}>
-                <div className="neu-sm" style={{ width: 44, height: 44, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Hand size={18} strokeWidth={1.4} style={{ color: 'var(--blue)' }} />
+              <div style={{ display: 'flex', gap: 12 }}>
+                <div className="neu-sm" style={{
+                  width: 48, height: 48, borderRadius: 14,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Hand size={20} strokeWidth={1.4} style={{ color: 'var(--blue)' }} />
                 </div>
-                <div className="neu-sm" style={{ width: 44, height: 44, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Mic  size={18} strokeWidth={1.4} style={{ color: 'var(--green)' }} />
+                <div className="neu-sm" style={{
+                  width: 48, height: 48, borderRadius: 14,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Mic size={20} strokeWidth={1.4} style={{ color: 'var(--green)' }} />
                 </div>
               </div>
-              <p className="label" style={{ textAlign: 'center', lineHeight: 1.8, color: 'var(--text-muted)' }}>
-                Sign a message and press<br />
-                <span style={{ color: 'var(--green)' }}>Speak &amp; Send</span>
-                &nbsp;· or tap the mic to reply
-              </p>
+              <div style={{ textAlign: 'center' }}>
+                <p style={{
+                  fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)',
+                  marginBottom: 6,
+                }}>
+                  No messages yet
+                </p>
+                <p className="label" style={{ lineHeight: 1.8 }}>
+                  Sign a message and press<br />
+                  <span style={{ color: 'var(--green)' }}>Speak &amp; Send</span>
+                  {' '}· or tap the mic to reply
+                </p>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -84,68 +113,78 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
             return (
               <motion.div
                 key={msg.id}
-                initial={{ opacity: 0, x: isSigner ? -20 : 20, y: 6 }}
-                animate={{ opacity: 1, x: 0,                    y: 0 }}
-                transition={{ duration: 0.28, ease: 'easeOut' }}
-                style={{ display: 'flex', gap: 8, alignItems: 'flex-end',
-                         flexDirection: isSigner ? 'row' : 'row-reverse' }}
+                initial={{ opacity: 0, x: isSigner ? -18 : 18, y: 5 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                transition={{ duration: 0.26, ease: 'easeOut' }}
+                style={{
+                  display: 'flex', gap: 10, alignItems: 'flex-end',
+                  flexDirection: isSigner ? 'row' : 'row-reverse',
+                }}
               >
-                {/* Avatar disc */}
+                {/* Avatar */}
                 <div className="neu-sm" style={{
-                  width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+                  width: 30, height: 30, borderRadius: 9, flexShrink: 0,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  marginBottom: 2,
                   color: isSigner ? 'var(--blue)' : 'var(--green)',
+                  marginBottom: 2,
                 }}>
                   {isSigner
-                    ? <Hand size={12} strokeWidth={2} />
-                    : <Mic  size={12} strokeWidth={2} />}
+                    ? <Hand size={13} strokeWidth={2} />
+                    : <Mic  size={13} strokeWidth={2} />}
                 </div>
 
-                {/* Bubble */}
+                {/* Bubble + meta */}
                 <div
                   className="group"
                   style={{
-                    maxWidth: '78%',
-                    display: 'flex', flexDirection: 'column',
+                    maxWidth: '76%', display: 'flex', flexDirection: 'column',
                     alignItems: isSigner ? 'flex-start' : 'flex-end',
+                    gap: 5,
                   }}
                 >
-                  {/* Raised chip for signer, inset trough for listener */}
                   <div
                     className={cn(isSigner ? 'neu-sm' : 'neu-inset-sm')}
                     style={{
-                      padding: '8px 12px',
-                      borderRadius: isSigner ? 14 : 10,
-                      borderTopLeftRadius:  isSigner ? 4  : undefined,
-                      borderTopRightRadius: !isSigner ? 4 : undefined,
+                      padding: '10px 14px',
+                      borderRadius: isSigner ? 16 : 12,
+                      ...(isSigner
+                        ? { borderTopLeftRadius: 5 }
+                        : { borderTopRightRadius: 5 }),
                     }}
                   >
                     <p style={{
-                      fontSize: '0.82rem', lineHeight: 1.55,
+                      fontSize: '0.84rem', lineHeight: 1.55,
                       color: isSigner ? 'var(--text-primary)' : 'var(--text-secondary)',
                     }}>
                       {msg.text}
                     </p>
                   </div>
 
-                  {/* Hover meta */}
+                  {/* Hover meta row */}
                   <div
                     className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                     style={{
-                      display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, padding: '0 4px',
+                      display: 'flex', alignItems: 'center', gap: 6,
                       flexDirection: isSigner ? 'row' : 'row-reverse',
+                      padding: '0 4px',
                     }}
                   >
-                    <span className="label" style={{ fontSize: '0.55rem', color: 'var(--text-muted)' }}>
+                    <span style={{
+                      fontSize: '0.6rem', fontWeight: 600, color: 'var(--text-muted)',
+                      letterSpacing: '0.04em',
+                    }}>
                       {formatTime(msg.timestamp)}
                     </span>
                     <button
                       onClick={() => onSpeak(msg.text)}
-                      style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: 'var(--text-muted)', display: 'flex', alignItems: 'center',
+                        padding: 2, borderRadius: 4,
+                      }}
                       title="Read aloud"
                     >
-                      <Volume2 size={10} />
+                      <Volume2 size={11} />
                     </button>
                   </div>
                 </div>

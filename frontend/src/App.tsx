@@ -20,12 +20,11 @@ function initTheme(): Theme {
 }
 
 export default function App() {
-  const [theme, setTheme]         = useState<Theme>(initTheme)
+  const [theme, setTheme]       = useState<Theme>(initTheme)
   const { status, prediction, sendFrame } = useWebSocket()
-  const { speak }                 = useTTS()
-  const [messages, setMessages]   = useState<Message[]>([])
+  const { speak }               = useTTS()
+  const [messages, setMessages] = useState<Message[]>([])
 
-  /* Apply theme to <html> + persist */
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('sb-theme', theme)
@@ -44,49 +43,60 @@ export default function App() {
 
   const handleSpeak = useCallback((text: string) => speak(text), [speak])
 
-  const isLight = theme === 'light'
-
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--base)' }}>
+    <div style={{
+      height: '100vh', display: 'flex', flexDirection: 'column',
+      background: 'var(--base)', overflow: 'hidden',
+    }}>
 
-      {/* ── Nav ─────────────────────────────────────────── */}
+      {/* ── Nav bar ─────────────────────────────────────── */}
       <motion.header
-        initial={{ y: -24, opacity: 0 }}
+        initial={{ y: -28, opacity: 0 }}
         animate={{ y: 0,   opacity: 1 }}
-        transition={{ duration: 0.45, ease: 'easeOut' }}
-        className="neu-sm flex items-center justify-between px-6 py-4 mx-4 mt-4 flex-shrink-0"
-        style={{ borderRadius: 20 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="neu-sm flex-shrink-0"
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '14px 28px', margin: '16px 16px 0', borderRadius: 22,
+        }}
       >
         {/* Brand */}
-        <div className="flex items-center gap-3">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           {/* Logo disc */}
-          <div className="neu flex items-center justify-center"
-               style={{ width: 42, height: 42, borderRadius: 14, flexShrink: 0 }}>
-            <span style={{ fontSize: '0.7rem', fontWeight: 900, color: 'var(--green)',
-                           letterSpacing: '0.01em' }}>SB</span>
+          <div className="neu" style={{
+            width: 46, height: 46, borderRadius: 15, flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{
+              fontSize: '0.75rem', fontWeight: 900, color: 'var(--green)',
+              letterSpacing: '-0.01em',
+            }}>SB</span>
           </div>
 
-          <div style={{ lineHeight: 1 }}>
-            <p style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)',
-                        letterSpacing: '-0.01em' }}>
+          <div>
+            <p style={{
+              fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)',
+              letterSpacing: '-0.02em', lineHeight: 1.1,
+            }}>
               Sign<span style={{ color: 'var(--green)' }}>Bridge</span>
             </p>
-            <p className="label" style={{ marginTop: 3 }}>ASL Translator</p>
+            <p className="label" style={{ marginTop: 3, fontSize: '0.6rem' }}>
+              ASL · Two-Way Communication
+            </p>
           </div>
 
-          <div className="neu-inset-sm" style={{ padding: '2px 10px', borderRadius: 8 }}>
+          <div className="neu-inset-sm" style={{ padding: '3px 12px', borderRadius: 8, marginLeft: 4 }}>
             <span className="label" style={{ color: 'var(--blue)', fontSize: '0.58rem' }}>v2.0</span>
           </div>
         </div>
 
-        {/* Right side: hint + toggle */}
-        <div className="flex items-center gap-3">
+        {/* Right: hint + toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <p className="label hidden sm:block" style={{ fontSize: '0.58rem' }}>
             Hold any ASL sign 1.5 s to type ·&nbsp;
             <span style={{ color: 'var(--green)' }}>Speak &amp; Send</span> to transmit
           </p>
 
-          {/* Theme toggle */}
           <AnimatePresence mode="wait">
             <motion.button
               key={theme}
@@ -98,57 +108,59 @@ export default function App() {
               whileTap={{   scale: 0.9 }}
               onClick={toggleTheme}
               className="neu-toggle"
-              style={{ width: 38, height: 38, display: 'flex', alignItems: 'center',
-                       justifyContent: 'center' }}
-              aria-label={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
-              title={isLight ? 'Dark mode' : 'Light mode'}
+              style={{ width: 42, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             >
-              {isLight
-                ? <Moon size={15} style={{ color: 'var(--blue)' }} />
-                : <Sun  size={15} style={{ color: 'var(--amber)' }} />}
+              {theme === 'light'
+                ? <Moon size={16} style={{ color: 'var(--blue)' }} />
+                : <Sun  size={16} style={{ color: 'var(--amber)' }} />}
             </motion.button>
           </AnimatePresence>
         </div>
       </motion.header>
 
       {/* ── Main grid ───────────────────────────────────── */}
-      <main className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 overflow-hidden">
+      <main style={{
+        flex: 1, minHeight: 0,
+        display: 'grid', gridTemplateColumns: '1fr 1fr',
+        gap: 16, padding: 16,
+      }}>
 
         {/* Left — camera */}
         <motion.div
-          initial={{ x: -32, opacity: 0 }}
+          initial={{ x: -36, opacity: 0 }}
           animate={{ x: 0,   opacity: 1 }}
-          transition={{ duration: 0.45, delay: 0.12, ease: 'easeOut' }}
-          className="neu-lg flex flex-col overflow-hidden"
-          style={{ padding: 20, minHeight: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+          className="neu-lg"
+          style={{ display: 'flex', flexDirection: 'column', padding: 24, minHeight: 0, overflow: 'hidden' }}
         >
           <CameraPanel sendFrame={sendFrame} prediction={prediction} status={status} />
         </motion.div>
 
-        {/* Right — conversation stack */}
+        {/* Right — stacked conversation panel */}
         <motion.div
-          initial={{ x: 32, opacity: 0 }}
+          initial={{ x: 36, opacity: 0 }}
           animate={{ x: 0,  opacity: 1 }}
-          transition={{ duration: 0.45, delay: 0.22, ease: 'easeOut' }}
-          className="neu-lg flex flex-col overflow-hidden"
-          style={{ minHeight: 0 }}
+          transition={{ duration: 0.5, delay: 0.18, ease: 'easeOut' }}
+          className="neu-lg"
+          style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}
         >
-          {/* Transcript */}
-          <div className="flex-1 overflow-hidden min-h-0" style={{ padding: '20px 20px 16px' }}>
+          {/* ① Transcript — grows to fill all available space */}
+          <div style={{ flex: 1, minHeight: 0, padding: '24px 24px 16px', overflow: 'hidden' }}>
             <TranscriptPanel messages={messages} onSpeak={handleSpeak} />
           </div>
 
           <div className="neu-divider" />
 
-          {/* Sentence builder */}
-          <div style={{ padding: '14px 20px' }}>
+          {/* ② Sentence builder */}
+          <div style={{ padding: '20px 24px', flexShrink: 0 }}>
             <SentenceBuilder prediction={prediction} onSend={handleSignerSend} />
           </div>
 
           <div className="neu-divider" />
 
-          {/* Listener reply */}
-          <div style={{ padding: '14px 20px 18px' }}>
+          {/* ③ Listener reply */}
+          <div style={{ padding: '16px 24px 22px', flexShrink: 0 }}>
             <SpeechInput onMessage={handleListenerMessage} />
           </div>
         </motion.div>

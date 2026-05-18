@@ -15,14 +15,13 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
   if (!isSupported) {
     return (
       <div className="neu-inset-sm" style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        padding: '8px 14px', borderRadius: 12,
-        color: 'var(--amber)',
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '10px 16px', borderRadius: 12,
       }}>
-        <AlertCircle size={14} />
-        <span className="label" style={{ color: 'var(--amber)' }}>
+        <AlertCircle size={14} style={{ color: 'var(--amber)', flexShrink: 0 }} />
+        <p style={{ fontSize: '0.74rem', fontWeight: 500, color: 'var(--amber)' }}>
           Speech input requires Chrome or Edge
-        </span>
+        </p>
       </div>
     )
   }
@@ -32,102 +31,113 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
 
       {/* ── Header ─────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span className="label">Listener Reply</span>
+        <span style={{
+          fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.15em',
+          textTransform: 'uppercase', color: 'var(--text-secondary)',
+        }}>
+          Listener Reply
+        </span>
+
         <AnimatePresence>
           {isListening && (
             <motion.div
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{    opacity: 0, x: 8 }}
-              style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+              style={{ display: 'flex', alignItems: 'center', gap: 7 }}
             >
               <span className="led led-green led-pulse" />
-              <span className="label" style={{ color: 'var(--green)', fontSize: '0.6rem' }}>
-                Listening…
+              <span style={{
+                fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.12em',
+                textTransform: 'uppercase', color: 'var(--green)',
+              }}>
+                Listening
               </span>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* ── Live interim transcript ─────────────────────── */}
-      <AnimatePresence>
-        {isListening && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{    opacity: 0, height: 0 }}
-            style={{ overflow: 'hidden' }}
-          >
-            <div className="neu-inset-sm" style={{
-              padding: '8px 12px', borderRadius: 10,
-              minHeight: 36,
-              display: 'flex', alignItems: 'center',
-            }}>
-              {interim
-                ? <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{interim}</p>
-                : <p className="label" style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>Speak now…</p>
-              }
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ── Mic row ─────────────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
 
-      {/* ── Mic button ──────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-
-        {/* Large raised circular mic button */}
+        {/* Circular mic button */}
         <motion.button
-          whileHover={{ scale: 1.06 }}
-          whileTap={{   scale: 0.94 }}
+          whileHover={{ scale: 1.07 }}
+          whileTap={{   scale: 0.92 }}
           onClick={handleToggle}
           className={isListening ? 'mic-ring' : 'neu'}
           style={{
-            width: 52, height: 52, borderRadius: '50%', flexShrink: 0,
+            width: 56, height: 56, borderRadius: '50%', flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             border: 'none', cursor: 'pointer',
             background: isListening ? 'var(--green-dim)' : 'var(--base)',
             color: isListening ? 'var(--green)' : 'var(--text-secondary)',
-            transition: 'background 0.2s, color 0.2s',
+            transition: 'background 0.25s ease, color 0.25s ease',
           }}
           aria-label={isListening ? 'Stop recording' : 'Start recording'}
         >
           <AnimatePresence mode="wait">
             {isListening ? (
               <motion.span key="stop"
-                initial={{ rotate: -20, opacity: 0 }}
-                animate={{ rotate: 0,   opacity: 1 }}
-                exit={{    rotate:  20, opacity: 0 }}
-                transition={{ duration: 0.15 }}
+                initial={{ rotate: -20, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }}
+                exit={{    rotate:  20, opacity: 0 }} transition={{ duration: 0.15 }}
                 style={{ display: 'flex' }}
               >
-                <MicOff size={20} />
+                <MicOff size={22} />
               </motion.span>
             ) : (
               <motion.span key="start"
-                initial={{ rotate: 20,  opacity: 0 }}
-                animate={{ rotate: 0,   opacity: 1 }}
-                exit={{    rotate: -20, opacity: 0 }}
-                transition={{ duration: 0.15 }}
+                initial={{ rotate: 20,  opacity: 0 }} animate={{ rotate: 0, opacity: 1 }}
+                exit={{    rotate: -20, opacity: 0 }} transition={{ duration: 0.15 }}
                 style={{ display: 'flex' }}
               >
-                <Mic size={20} />
+                <Mic size={22} />
               </motion.span>
             )}
           </AnimatePresence>
         </motion.button>
 
-        {/* Label */}
-        <div>
-          <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1 }}>
+        {/* Label + interim */}
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
+          <p style={{
+            fontSize: '0.86rem', fontWeight: 700,
+            color: isListening ? 'var(--green)' : 'var(--text-primary)',
+            lineHeight: 1, transition: 'color 0.2s ease',
+          }}>
             {isListening ? 'Recording…' : 'Tap to reply by voice'}
           </p>
-          <p className="label" style={{ marginTop: 4 }}>
-            {isListening ? 'Tap again to stop' : 'Listener side · STT'}
-          </p>
+
+          {/* Interim transcript or label */}
+          <AnimatePresence mode="wait">
+            {isListening && interim ? (
+              <motion.p
+                key="interim"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{    opacity: 0       }}
+                style={{
+                  fontSize: '0.76rem', color: 'var(--text-secondary)',
+                  fontStyle: 'italic',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}
+              >
+                "{interim}"
+              </motion.p>
+            ) : (
+              <motion.p
+                key="hint"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                style={{ fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.12em',
+                         textTransform: 'uppercase', color: 'var(--text-muted)' }}
+              >
+                {isListening ? 'Tap again to stop' : 'Listener side · STT'}
+              </motion.p>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-
     </div>
   )
 }

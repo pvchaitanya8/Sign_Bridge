@@ -11,7 +11,6 @@ interface CameraPanelProps {
   status:     ConnectionStatus
 }
 
-/* LED colour + label per connection state */
 const statusMap: Record<ConnectionStatus, { label: string; led: string }> = {
   connected:    { label: 'LIVE',       led: 'led-green' },
   connecting:   { label: 'CONNECTING', led: 'led-amber led-pulse' },
@@ -29,74 +28,105 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
   const { label, led } = statusMap[status]
 
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%' }}>
 
-      {/* ── Header row ─────────────────────────────────── */}
-      <div className="flex items-center justify-between">
-        <span className="label">Camera Feed</span>
+      {/* ── Header ─────────────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <span style={{
+          fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.15em',
+          textTransform: 'uppercase', color: 'var(--text-secondary)',
+        }}>
+          Camera Feed
+        </span>
 
-        {/* Neumorphic status chip */}
-        <div className="neu-inset-sm flex items-center gap-2"
-             style={{ padding: '4px 12px', borderRadius: 10 }}>
+        {/* Status chip */}
+        <div className="neu-inset-sm" style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '5px 14px', borderRadius: 10,
+        }}>
           <span className={cn('led', led)} />
-          <span className="label" style={{ fontSize: '0.58rem' }}>{label}</span>
+          <span style={{
+            fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.12em',
+            textTransform: 'uppercase', color: 'var(--text-secondary)',
+          }}>{label}</span>
         </div>
       </div>
 
-      {/* ── Video viewport (inset = embedded screen) ───── */}
-      <div className="relative flex-1 min-h-0 med-display overflow-hidden">
-        {/* Hidden capture canvas */}
-        <canvas ref={canvasRef} width={640} height={480} className="hidden" />
+      {/* ── Viewport (inset = embedded screen) ─────────── */}
+      <div className="med-display" style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden' }}>
+        <canvas ref={canvasRef} width={640} height={480} style={{ display: 'none' }} />
 
         {/* Live feed */}
         <video
           ref={videoRef}
           muted
           playsInline
-          className={cn('w-full h-full object-cover', !isStreaming && 'hidden')}
-          style={{ transform: 'scaleX(-1)' }}
+          style={{
+            width: '100%', height: '100%', objectFit: 'cover',
+            transform: 'scaleX(-1)',
+            display: isStreaming ? 'block' : 'none',
+          }}
         />
 
         {/* Camera-off placeholder */}
         {!isStreaming && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-            <div className="neu" style={{ width: 64, height: 64, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CameraOff size={26} strokeWidth={1.3} style={{ color: 'var(--text-muted)' }} />
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: 20,
+          }}>
+            <div className="neu" style={{
+              width: 72, height: 72, borderRadius: 22,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <CameraOff size={28} strokeWidth={1.4} style={{ color: 'var(--text-muted)' }} />
             </div>
-            <p className="label text-center" style={{ maxWidth: 180, lineHeight: 1.6 }}>
-              {error ?? (status === 'connecting' ? 'Waiting for server…' : 'Camera starts when connected')}
-            </p>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{
+                fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)',
+                marginBottom: 6, letterSpacing: '0.01em',
+              }}>
+                {error ? 'Camera unavailable' : status === 'connecting' ? 'Connecting to server…' : 'Camera ready'}
+              </p>
+              <p className="label" style={{ lineHeight: 1.7, maxWidth: 200 }}>
+                {error ?? (status === 'connecting'
+                  ? 'Stream starts automatically once connected'
+                  : 'Click Start Camera below to begin')}
+              </p>
+            </div>
           </div>
         )}
 
-        {/* ── Prediction overlay bar ───────────────────── */}
+        {/* ── Prediction overlay ───────────────────────── */}
         <AnimatePresence>
           {isStreaming && prediction && (
             <motion.div
-              key="pred-bar"
-              initial={{ opacity: 0, y: 16 }}
+              key="pred"
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0  }}
-              exit={{    opacity: 0, y: 16 }}
+              exit={{    opacity: 0, y: 20 }}
               transition={{ duration: 0.22 }}
-              className="absolute bottom-0 left-0 right-0"
-              style={{ padding: '10px' }}
+              style={{ position: 'absolute', bottom: 12, left: 12, right: 12 }}
             >
-              {/* Raised prediction chip overlaying the video */}
-              <div className="neu" style={{ padding: '12px 14px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 14 }}>
-
-                {/* Big letter — flips in */}
+              <div className="neu" style={{
+                padding: '14px 18px', borderRadius: 18,
+                display: 'flex', alignItems: 'center', gap: 18,
+              }}>
+                {/* Animated letter */}
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={prediction.letter}
-                    initial={{ rotateY: -90, scale: 0.7, opacity: 0 }}
+                    initial={{ rotateY: -90, scale: 0.6, opacity: 0 }}
                     animate={{ rotateY: 0,   scale: 1,   opacity: 1 }}
-                    exit={{    rotateY:  90, scale: 0.7, opacity: 0 }}
+                    exit={{    rotateY:  90, scale: 0.6, opacity: 0 }}
                     transition={{ duration: 0.18, ease: 'easeOut' }}
-                    className="neu-sm flex items-center justify-center flex-shrink-0"
-                    style={{ width: 52, height: 52, borderRadius: 14 }}
+                    className="neu-sm"
+                    style={{
+                      width: 60, height: 60, borderRadius: 16, flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
                   >
-                    <span className="glow-green mono"
-                          style={{ fontSize: '1.6rem', fontWeight: 800 }}>
+                    <span className="glow-green mono" style={{ fontSize: '1.8rem', fontWeight: 900 }}>
                       {prediction.letter === 'space' ? '⎵'
                        : prediction.letter === 'del'  ? '⌫'
                        : prediction.letter.toUpperCase()}
@@ -104,27 +134,23 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
                   </motion.div>
                 </AnimatePresence>
 
-                {/* Confidence meter */}
-                <div className="flex-1 min-w-0" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {/* Confidence */}
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                     <span className="label">Confidence</span>
-                    <span className="mono glow-green" style={{ fontSize: '0.75rem', fontWeight: 700 }}>
+                    <span className="mono glow-green" style={{ fontSize: '0.9rem', fontWeight: 800 }}>
                       {(prediction.confidence * 100).toFixed(0)}%
                     </span>
                   </div>
-
-                  {/* Shimmer bar */}
                   <div className="confidence-track">
                     <motion.div
                       className="confidence-fill"
-                      style={{ height: '100%', borderRadius: 99 }}
                       initial={{ width: 0 }}
                       animate={{ width: `${prediction.confidence * 100}%` }}
                       transition={{ duration: 0.25, ease: 'easeOut' }}
                     />
                   </div>
-
-                  <p className="label" style={{ fontSize: '0.58rem', color: 'var(--text-secondary)' }}>
+                  <p className="label" style={{ color: 'var(--text-secondary)', fontSize: '0.6rem' }}>
                     {prediction.letter === 'space' ? 'Space detected'
                      : prediction.letter === 'del'  ? 'Delete detected'
                      : `Letter "${prediction.letter.toUpperCase()}" detected`}
@@ -135,7 +161,7 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
           )}
         </AnimatePresence>
 
-        {/* No hand detected */}
+        {/* No hand hint */}
         <AnimatePresence>
           {isStreaming && !prediction && (
             <motion.div
@@ -143,9 +169,9 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{    opacity: 0 }}
-              className="absolute bottom-2 left-2 right-2"
+              style={{ position: 'absolute', bottom: 12, left: 12, right: 12 }}
             >
-              <div className="neu-inset-sm" style={{ padding: '6px 14px', borderRadius: 10, textAlign: 'center' }}>
+              <div className="neu-inset-sm" style={{ padding: '8px 16px', borderRadius: 10, textAlign: 'center' }}>
                 <span className="label" style={{ color: 'var(--text-muted)' }}>
                   No hand detected — show your hand to the camera
                 </span>
@@ -155,18 +181,24 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
         </AnimatePresence>
       </div>
 
-      {/* ── Camera toggle button ────────────────────────── */}
+      {/* ── Toggle button ───────────────────────────────── */}
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{   scale: 0.97 }}
         onClick={isStreaming ? stopCamera : startCamera}
-        className={cn('neu-btn w-full flex items-center justify-center gap-2')}
-        style={{ padding: '10px 0', fontSize: '0.82rem', fontWeight: 600,
-                 color: isStreaming ? 'var(--red)' : 'var(--blue)' }}
+        className="neu-btn"
+        style={{
+          flexShrink: 0,
+          width: '100%', height: 46,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          fontSize: '0.84rem', fontWeight: 700, letterSpacing: '0.01em',
+          borderRadius: 14,
+          color: isStreaming ? 'var(--red)' : 'var(--blue)',
+        }}
       >
         {isStreaming
-          ? <><CameraOff size={14} /> Stop Camera</>
-          : <><Camera    size={14} /> Start Camera</>}
+          ? <><CameraOff size={15} /> Stop Camera</>
+          : <><Camera    size={15} /> Start Camera</>}
       </motion.button>
 
     </div>
