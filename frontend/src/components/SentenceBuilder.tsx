@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence }     from 'framer-motion'
-import { Trash2, Copy, Check, Volume2 } from 'lucide-react'
+import { Trash2, Copy, Check, Volume2, PenLine } from 'lucide-react'
 import { cn }        from '../lib/utils'
 import type { Prediction } from '../types'
 
@@ -86,15 +86,24 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
 
       {/* ── Header ─────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{
-          fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.15em',
-          textTransform: 'uppercase', color: 'var(--text-secondary)',
+        {/* Glass section label */}
+        <div className="glass-pill" style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '5px 12px',
         }}>
-          Sentence Builder
-        </span>
-        <span className="label" style={{ color: 'var(--text-muted)', fontSize: '0.58rem' }}>
-          Hold 1.5 s to confirm
-        </span>
+          <PenLine size={10} style={{ color: 'var(--blue)', flexShrink: 0 }} />
+          <span style={{
+            fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.14em',
+            textTransform: 'uppercase', color: 'var(--text-secondary)',
+          }}>Sentence Builder</span>
+        </div>
+
+        {/* Glass hint badge */}
+        <div className="glass-pill" style={{ padding: '4px 10px' }}>
+          <span className="label" style={{ color: 'var(--text-muted)', fontSize: '0.57rem' }}>
+            Hold 1.5 s to confirm
+          </span>
+        </div>
       </div>
 
       {/* ── Ring + status + preview ─────────────────────── */}

@@ -28,23 +28,31 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         marginBottom: 14, flexShrink: 0,
       }}>
-        <span style={{
-          fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.15em',
-          textTransform: 'uppercase', color: 'var(--text-secondary)',
+        {/* Glass section label */}
+        <div className="glass-pill" style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '5px 12px',
         }}>
-          Conversation
-        </span>
+          <Hand size={10} style={{ color: 'var(--green)', flexShrink: 0 }} />
+          <span style={{
+            fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.14em',
+            textTransform: 'uppercase', color: 'var(--text-secondary)',
+          }}>Conversation</span>
+        </div>
+
+        {/* Message count — glass pill badge */}
         <AnimatePresence>
           {messages.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.7 }}
               animate={{ opacity: 1, scale: 1   }}
-              className="neu-inset-sm"
-              style={{ padding: '3px 12px', borderRadius: 8 }}
+              exit={{    opacity: 0, scale: 0.7 }}
+              className="glass-pill"
+              style={{ padding: '4px 12px' }}
             >
               <span style={{
                 fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em',
-                textTransform: 'uppercase', color: 'var(--text-secondary)',
+                textTransform: 'uppercase', color: 'var(--green)',
               }}>
                 {messages.length} msg{messages.length !== 1 ? 's' : ''}
               </span>
@@ -188,27 +196,19 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
                     gap: 5,
                   }}
                 >
+                  {/* Glass bubble — green for signer, blue for listener */}
                   <div
+                    className={isSigner ? 'glass-green' : 'glass-blue'}
                     style={{
                       padding: '10px 14px',
-                      borderRadius: isSigner ? 16 : 14,
                       ...(isSigner
                         ? { borderTopLeftRadius: 4 }
                         : { borderTopRightRadius: 4 }),
-                      ...(isSigner ? {
-                        background: 'var(--base)',
-                        boxShadow: 'var(--shadow-raised-sm)',
-                        borderLeft: '3px solid var(--green)',
-                      } : {
-                        background: 'var(--base-deep)',
-                        boxShadow: 'var(--shadow-inset-sm)',
-                        borderRight: '3px solid var(--blue)',
-                      }),
                     }}
                   >
                     <p style={{
                       fontSize: '0.84rem', lineHeight: 1.6,
-                      color: isSigner ? 'var(--text-primary)' : 'var(--text-secondary)',
+                      color: 'var(--text-primary)',
                       fontWeight: 500,
                     }}>
                       {msg.text}

@@ -14,9 +14,11 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
 
   if (!isSupported) {
     return (
-      <div className="neu-inset-sm" style={{
+      <div className="glass-pill" style={{
         display: 'flex', alignItems: 'center', gap: 10,
         padding: '10px 16px', borderRadius: 12,
+        background: 'rgba(251,191,36,0.07)',
+        borderColor: 'rgba(251,191,36,0.20)',
       }}>
         <AlertCircle size={14} style={{ color: 'var(--amber)', flexShrink: 0 }} />
         <p style={{ fontSize: '0.74rem', fontWeight: 500, color: 'var(--amber)' }}>
@@ -31,20 +33,33 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
 
       {/* ── Header ─────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{
-          fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.15em',
-          textTransform: 'uppercase', color: 'var(--text-secondary)',
+        {/* Glass section label */}
+        <div className="glass-pill" style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '5px 12px',
         }}>
-          Listener Reply
-        </span>
+          <Mic size={10} style={{ color: 'var(--blue)', flexShrink: 0 }} />
+          <span style={{
+            fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.14em',
+            textTransform: 'uppercase', color: 'var(--text-secondary)',
+          }}>Listener Reply</span>
+        </div>
 
+        {/* Listening indicator — glass green pill */}
         <AnimatePresence>
           {isListening && (
             <motion.div
-              initial={{ opacity: 0, x: 8 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{    opacity: 0, x: 8 }}
-              style={{ display: 'flex', alignItems: 'center', gap: 7 }}
+              initial={{ opacity: 0, scale: 0.85, x: 8 }}
+              animate={{ opacity: 1, scale: 1,    x: 0 }}
+              exit={{    opacity: 0, scale: 0.85, x: 8 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 22 }}
+              className="glass-pill"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '5px 12px',
+                background: 'rgba(52,211,153,0.10)',
+                borderColor: 'rgba(52,211,153,0.25)',
+              }}
             >
               <span className="led led-green led-pulse" />
               <span style={{

@@ -49,12 +49,12 @@ export default function App() {
       background: 'var(--base)', overflow: 'hidden',
     }}>
 
-      {/* ── Nav bar ─────────────────────────────────────── */}
+      {/* ── Nav bar — glass ─────────────────────────────── */}
       <motion.header
         initial={{ y: -28, opacity: 0 }}
         animate={{ y: 0,   opacity: 1 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="neu-sm flex-shrink-0"
+        className="glass-nav flex-shrink-0"
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '14px 28px', margin: '16px 16px 0', borderRadius: 22,
@@ -62,9 +62,9 @@ export default function App() {
       >
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          {/* Logo disc */}
+          {/* Logo disc — neumorphic for tactile contrast against glass nav */}
           <div className="neu" style={{
-            width: 46, height: 46, borderRadius: 15, flexShrink: 0,
+            width: 44, height: 44, borderRadius: 14, flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <span style={{
@@ -85,17 +85,24 @@ export default function App() {
             </p>
           </div>
 
-          <div className="neu-inset-sm" style={{ padding: '3px 12px', borderRadius: 8, marginLeft: 4 }}>
+          {/* Glass version badge */}
+          <div className="glass-pill" style={{ padding: '4px 12px', marginLeft: 4 }}>
             <span className="label" style={{ color: 'var(--blue)', fontSize: '0.58rem' }}>v2.0</span>
           </div>
         </div>
 
         {/* Right: hint + toggle */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <p className="label hidden sm:block" style={{ fontSize: '0.58rem' }}>
-            Hold any ASL sign 1.5 s to type ·&nbsp;
-            <span style={{ color: 'var(--green)' }}>Speak &amp; Send</span> to transmit
-          </p>
+          {/* Glass hint pill */}
+          <div className="glass-pill" style={{
+            padding: '5px 14px',
+            display: 'none',  /* shown via sm:flex on wider viewports */
+          }}>
+            <p className="label" style={{ fontSize: '0.57rem', whiteSpace: 'nowrap' }}>
+              Hold sign 1.5 s&nbsp;·&nbsp;
+              <span style={{ color: 'var(--green)' }}>Speak &amp; Send</span>
+            </p>
+          </div>
 
           <AnimatePresence mode="wait">
             <motion.button

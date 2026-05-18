@@ -32,24 +32,32 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
 
       {/* ── Header ─────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-        <span style={{
-          fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.15em',
-          textTransform: 'uppercase', color: 'var(--text-secondary)',
+        {/* Glass section label */}
+        <div className="glass-pill" style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '5px 12px',
         }}>
-          Camera Feed
-        </span>
+          <Camera size={10} style={{ color: 'var(--green)', flexShrink: 0 }} />
+          <span style={{
+            fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.14em',
+            textTransform: 'uppercase', color: 'var(--text-secondary)',
+          }}>Camera Feed</span>
+        </div>
 
-        {/* Status chip */}
-        <div className="neu-inset-sm" style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '5px 14px', borderRadius: 10,
-        }}>
+        {/* Status chip — glass pill */}
+        <motion.div
+          className="glass-pill"
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 14px' }}
+          animate={status === 'connected' ? { boxShadow: ['0 2px 12px rgba(0,0,0,0.12)', '0 2px 20px rgba(52,211,153,0.18)', '0 2px 12px rgba(0,0,0,0.12)'] } : {}}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
           <span className={cn('led', led)} />
           <span style={{
             fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.12em',
-            textTransform: 'uppercase', color: 'var(--text-secondary)',
+            textTransform: 'uppercase',
+            color: status === 'connected' ? 'var(--green)' : 'var(--text-secondary)',
           }}>{label}</span>
-        </div>
+        </motion.div>
       </div>
 
       {/* ── Viewport (inset = embedded screen) ─────────── */}

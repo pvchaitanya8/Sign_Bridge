@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════
-   SIGNBRIDGE — Neumorphic Design System  v2.1
+   SIGNBRIDGE — Hybrid Design System  v3.0
+   Neumorphism (structural) + Glassmorphism (floating/overlay)
    Dual-theme: dark (default) + light
-   Shadow math based on neumorphism.io
 
    DARK  base: #2d2d2d  |  dark shadow: #1a1a1a  |  lite shadow: #404040
    LIGHT base: #e0e0e0  |  dark shadow: #bebebe  |  lite shadow: #ffffff
@@ -54,6 +54,16 @@
   --shadow-inset:     inset  6px  6px 14px var(--shadow-dark), inset  -6px  -6px 14px var(--shadow-lite);
   --shadow-inset-lg:  inset 10px 10px 20px var(--shadow-dark), inset -10px -10px 20px var(--shadow-lite);
 
+  /* ── Glassmorphism tokens (dark mode) ────────────────── */
+  --glass-bg:          rgba(255, 255, 255, 0.05);
+  --glass-bg-md:       rgba(255, 255, 255, 0.08);
+  --glass-bg-hv:       rgba(255, 255, 255, 0.11);
+  --glass-border:      rgba(255, 255, 255, 0.09);
+  --glass-border-md:   rgba(255, 255, 255, 0.15);
+  --glass-highlight:   rgba(255, 255, 255, 0.07);   /* specular top-edge */
+  --glass-shadow:      0 8px 32px rgba(0, 0, 0, 0.28);
+  --glass-blur:        18px;
+
   /* theme toggle icon hint */
   --toggle-icon: '☀';
 }
@@ -90,6 +100,15 @@
   --red-glow:    rgba(220, 38, 38, 0.18);
   --red-border:  rgba(220, 38, 38, 0.22);
 
+  /* ── Glassmorphism tokens (light mode) ──────────────── */
+  --glass-bg:          rgba(255, 255, 255, 0.48);
+  --glass-bg-md:       rgba(255, 255, 255, 0.62);
+  --glass-bg-hv:       rgba(255, 255, 255, 0.78);
+  --glass-border:      rgba(255, 255, 255, 0.72);
+  --glass-border-md:   rgba(255, 255, 255, 0.88);
+  --glass-highlight:   rgba(255, 255, 255, 0.90);
+  --glass-shadow:      0 8px 32px rgba(0, 0, 0, 0.08);
+
   --toggle-icon: '🌙';
 }
 
@@ -101,6 +120,22 @@ body {
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
+
+  /*
+   * Ambient gradient orbs — barely visible on their own, but glass
+   * backdrop-filter picks up the colour variation and produces a
+   * beautiful frosted tint. Green top-left, blue bottom-right.
+   */
+  background-image:
+    radial-gradient(ellipse 65% 45% at 8%  8%,  rgba(52, 211, 153, 0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 65% at 92% 92%, rgba(96, 165, 250, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 0%,  rgba(251,191,36,  0.03) 0%, transparent 50%);
+}
+[data-theme="light"] body {
+  background-image:
+    radial-gradient(ellipse 65% 45% at 8%  8%,  rgba(5,  150, 105, 0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 65% at 92% 92%, rgba(37, 99,  235, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 0%,  rgba(217,119,6,  0.03) 0%, transparent 50%);
 }
 
 #root { min-height: 100vh; }
@@ -157,6 +192,78 @@ body {
   box-shadow: var(--shadow-inset-lg);
   border-radius: 22px;
   transition: box-shadow 0.25s ease, background-color 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLASSMORPHISM SURFACE CLASSES
+   Use for floating/overlay elements: nav, chips, badges, bubbles.
+   Keep neumorphic classes for structural elements: panels, buttons, troughs.
+═══════════════════════════════════════════════════════════ */
+
+/* Nav-bar glass — elevated, heavy blur, specular top edge */
+.glass-nav {
+  background: var(--glass-bg-hv);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border-md);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Standard glass panel */
+.glass {
+  background: var(--glass-bg-md);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+  border-radius: 20px;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Small glass pill — chips, badges, section headers */
+.glass-pill {
+  background: var(--glass-bg-md);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid var(--glass-border);
+  border-radius: 99px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 var(--glass-highlight);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Green-tinted glass — signer messages, active overlays */
+.glass-green {
+  background: rgba(52, 211, 153, 0.07);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border: 1px solid rgba(52, 211, 153, 0.18);
+  border-left: 3px solid var(--green);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(52,211,153,0.08), inset 0 1px 0 rgba(52,211,153,0.06);
+  transition: background 0.3s ease;
+}
+[data-theme="light"] .glass-green {
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.20);
+  border-left: 3px solid var(--green);
+}
+
+/* Blue-tinted glass — listener messages */
+.glass-blue {
+  background: rgba(96, 165, 250, 0.07);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  border-right: 3px solid var(--blue);
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(96,165,250,0.07), inset 0 1px 0 rgba(96,165,250,0.05);
+  transition: background 0.3s ease;
+}
+[data-theme="light"] .glass-blue {
+  background: rgba(37, 99, 235, 0.05);
+  border-color: rgba(37, 99, 235, 0.15);
+  border-right: 3px solid var(--blue);
 }
 
 /* ── Buttons ───────────────────────────────────────────── */
@@ -413,6 +520,12 @@ body {
 @keyframes audio-bar {
   0%, 100% { transform: scaleY(0.35); }
   50%       { transform: scaleY(1);   }
+}
+
+/* Glass surface shimmer — subtle moving specular highlight */
+@keyframes glass-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
 }
 
 /* Smooth theme transition on all neu surfaces */
