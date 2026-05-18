@@ -1,135 +1,112 @@
-/**
- * App.tsx — Root component (Phase 5: Speech features)
- * -----------------------------------------------------
- * State owned here:
- *   - messages[]   — full conversation transcript
- *   - WebSocket    — prediction stream + sendFrame
- *   - TTS          — speaks signer sentences aloud
- *
- * Data flow:
- *
- *   useWebSocket() → { sendFrame, prediction, status }
- *   useTTS()       → { speak, isSpeaking }
- *
- *   CameraPanel     ← sendFrame, prediction, status
- *   SentenceBuilder ← prediction, onSend(text)
- *                       └─ onSend: adds message + calls speak()
- *   TranscriptPanel ← messages, onSpeak
- *   SpeechInput     ← onMessage(text)
- *                       └─ onMessage: adds listener message
- *
- * Layout (right panel is now a vertical 3-section stack):
- *
- *  ┌───────────────┬─────────────────────────────┐
- *  │               │  Conversation transcript     │ (flex-1, scrollable)
- *  │  Camera Feed  ├─────────────────────────────┤
- *  │               │  Sentence Builder            │ (fixed)
- *  │               ├─────────────────────────────┤
- *  │               │  Listener Speech Input       │ (fixed)
- *  └───────────────┴─────────────────────────────┘
- */
-
 import { useState, useCallback } from 'react'
-import { useWebSocket }     from './hooks/useWebSocket'
-import { useTTS }           from './hooks/useSpeech'
-import { CameraPanel }      from './components/CameraPanel'
-import { SentenceBuilder }  from './components/SentenceBuilder'
-import { TranscriptPanel }  from './components/TranscriptPanel'
-import { SpeechInput }      from './components/SpeechInput'
-import type { Message }     from './types'
+import { motion }               from 'framer-motion'
+import { useWebSocket }         from './hooks/useWebSocket'
+import { useTTS }               from './hooks/useSpeech'
+import { CameraPanel }          from './components/CameraPanel'
+import { SentenceBuilder }      from './components/SentenceBuilder'
+import { TranscriptPanel }      from './components/TranscriptPanel'
+import { SpeechInput }          from './components/SpeechInput'
+import type { Message }         from './types'
 
-function makeId() {
-  return Math.random().toString(36).slice(2)
-}
+function makeId() { return Math.random().toString(36).slice(2) }
 
 export default function App() {
   const { status, prediction, sendFrame } = useWebSocket()
   const { speak }                         = useTTS()
   const [messages, setMessages]           = useState<Message[]>([])
 
-  // Called when signer presses "Speak & Send"
   const handleSignerSend = useCallback((text: string) => {
     speak(text)
-    setMessages(prev => [...prev, {
-      id:        makeId(),
-      role:      'signer',
-      text,
-      timestamp: new Date(),
-    }])
+    setMessages(prev => [...prev, { id: makeId(), role: 'signer', text, timestamp: new Date() }])
   }, [speak])
 
-  // Called when listener finishes speaking
   const handleListenerMessage = useCallback((text: string) => {
-    setMessages(prev => [...prev, {
-      id:        makeId(),
-      role:      'listener',
-      text,
-      timestamp: new Date(),
-    }])
+    setMessages(prev => [...prev, { id: makeId(), role: 'listener', text, timestamp: new Date() }])
   }, [])
 
-  // Re-speak any message from the transcript
-  const handleSpeak = useCallback((text: string) => {
-    speak(text)
-  }, [speak])
+  const handleSpeak = useCallback((text: string) => speak(text), [speak])
 
   return (
-    <div className="min-h-screen bg-[#0f0f13] text-slate-100 flex flex-col">
+    <div className="relative min-h-screen flex flex-col overflow-hidden">
 
-      {/* ── Nav ─────────────────────────────────────────────── */}
-      <header className="border-b border-white/5 px-6 py-4 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="text-xl font-bold tracking-tight">
-            Sign<span className="text-indigo-400">Bridge</span>
-          </span>
-          <span className="text-xs text-slate-600 font-medium px-2 py-0.5 rounded-full border border-white/10">
-            v2.0
-          </span>
-        </div>
-        <p className="text-xs text-slate-500 hidden sm:block">
-          Hold any ASL sign 1.5s to type · Press Speak &amp; Send to transmit
-        </p>
-      </header>
+      {/* ── Ambient gradient orbs ──────────────────────── */}
+      <div className="orb orb-1" />
+      <div className="orb orb-2" />
+      <div className="orb orb-3" />
 
-      {/* ── Main layout ─────────────────────────────────────── */}
-      <main className="flex-1 grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-white/5 overflow-hidden">
+      {/* ── Content (above orbs) ───────────────────────── */}
+      <div className="relative z-10 flex flex-col min-h-screen">
 
-        {/* Left — camera */}
-        <div className="p-6 flex flex-col overflow-hidden">
-          <CameraPanel
-            sendFrame={sendFrame}
-            prediction={prediction}
-            status={status}
-          />
-        </div>
-
-        {/* Right — conversation stack */}
-        <div className="flex flex-col overflow-hidden border-t border-white/5 md:border-t-0">
-
-          {/* 1. Transcript (scrollable, grows to fill space) */}
-          <div className="flex-1 overflow-hidden p-6 pb-3 min-h-0">
-            <TranscriptPanel messages={messages} onSpeak={handleSpeak} />
+        {/* Nav */}
+        <motion.header
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0,   opacity: 1 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="glass flex items-center justify-between px-6 py-4 flex-shrink-0"
+        >
+          <div className="flex items-center gap-3">
+            {/* Logo mark */}
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+              <span className="text-white text-sm font-bold">S</span>
+            </div>
+            <div>
+              <span className="text-lg font-bold tracking-tight">
+                Sign<span className="gradient-text">Bridge</span>
+              </span>
+            </div>
+            <span className="text-[10px] text-slate-500 font-medium px-2 py-0.5 rounded-full border border-white/10 glass">
+              v2.0
+            </span>
           </div>
 
-          <div className="border-t border-white/5" />
+          <p className="text-xs text-slate-500 hidden sm:block">
+            Hold any ASL sign for 1.5 s to type · Press&nbsp;
+            <span className="text-indigo-400">Speak &amp; Send</span> to transmit
+          </p>
+        </motion.header>
 
-          {/* 2. Sentence builder (fixed height) */}
-          <div className="p-6 pt-4 pb-3">
-            <SentenceBuilder
-              prediction={prediction}
-              onSend={handleSignerSend}
-            />
-          </div>
+        {/* Main grid */}
+        <main className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 overflow-hidden">
 
-          <div className="border-t border-white/5" />
+          {/* Left — camera */}
+          <motion.div
+            initial={{ x: -30, opacity: 0 }}
+            animate={{ x: 0,   opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+            className="glass rounded-2xl p-5 flex flex-col overflow-hidden"
+          >
+            <CameraPanel sendFrame={sendFrame} prediction={prediction} status={status} />
+          </motion.div>
 
-          {/* 3. Listener speech input (fixed height) */}
-          <div className="p-6 pt-4">
-            <SpeechInput onMessage={handleListenerMessage} />
-          </div>
+          {/* Right — conversation stack */}
+          <motion.div
+            initial={{ x: 30, opacity: 0 }}
+            animate={{ x: 0,  opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2, ease: 'easeOut' }}
+            className="glass rounded-2xl flex flex-col overflow-hidden"
+          >
+            {/* Transcript */}
+            <div className="flex-1 p-5 overflow-hidden min-h-0">
+              <TranscriptPanel messages={messages} onSpeak={handleSpeak} />
+            </div>
 
-        </div>
-      </main>
+            <div className="border-t border-white/[0.06] mx-4" />
+
+            {/* Sentence builder */}
+            <div className="p-5 pt-4">
+              <SentenceBuilder prediction={prediction} onSend={handleSignerSend} />
+            </div>
+
+            <div className="border-t border-white/[0.06] mx-4" />
+
+            {/* Listener speech */}
+            <div className="p-5 pt-4">
+              <SpeechInput onMessage={handleListenerMessage} />
+            </div>
+          </motion.div>
+
+        </main>
+      </div>
     </div>
   )
 }

@@ -1,27 +1,8 @@
-/**
- * CameraPanel.tsx
- * ---------------
- * Shows the webcam feed and overlays the current prediction.
- *
- * Layout:
- *   ┌──────────────────────────────┐
- *   │ [● Connected]                │  ← status badge
- *   │                              │
- *   │      [live webcam feed]      │
- *   │                              │
- *   │  ╔══════════════════════╗    │
- *   │  ║   A          94%     ║    │  ← prediction bar
- *   │  ╚══════════════════════╝    │
- *   └──────────────────────────────┘
- *
- * React concept: this component owns no state — it receives
- * everything it needs as props (controlled component pattern).
- */
-
 import { useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Camera, CameraOff, Wifi, WifiOff, Loader2 } from 'lucide-react'
-import { cn } from '../lib/utils'
-import { useCamera } from '../hooks/useCamera'
+import { cn }          from '../lib/utils'
+import { useCamera }   from '../hooks/useCamera'
 import type { Prediction, ConnectionStatus } from '../types'
 
 interface CameraPanelProps {
@@ -30,112 +11,158 @@ interface CameraPanelProps {
   status:     ConnectionStatus
 }
 
-// Maps connection status → badge colour
-const statusConfig: Record<ConnectionStatus, { label: string; colour: string; icon: typeof Wifi }> = {
-  connected:    { label: 'Connected',    colour: 'bg-emerald-500', icon: Wifi     },
-  connecting:   { label: 'Connecting…',  colour: 'bg-amber-400',   icon: Loader2  },
-  disconnected: { label: 'Disconnected', colour: 'bg-slate-500',   icon: WifiOff  },
-  error:        { label: 'Error',        colour: 'bg-red-500',      icon: WifiOff  },
+const statusConfig: Record<ConnectionStatus, { label: string; dot: string; icon: typeof Wifi }> = {
+  connected:    { label: 'Live',        dot: 'bg-emerald-400', icon: Wifi    },
+  connecting:   { label: 'Connecting',  dot: 'bg-amber-400',   icon: Loader2 },
+  disconnected: { label: 'Offline',     dot: 'bg-slate-500',   icon: WifiOff },
+  error:        { label: 'Error',       dot: 'bg-red-500',     icon: WifiOff },
 }
 
 export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps) {
   const { videoRef, canvasRef, isStreaming, error, startCamera, stopCamera } = useCamera(sendFrame)
 
-  // Auto-start camera when the WebSocket connects
   useEffect(() => {
     if (status === 'connected' && !isStreaming) startCamera()
   }, [status, isStreaming, startCamera])
 
-  const { label, colour, icon: Icon } = statusConfig[status]
+  const { label, dot, icon: Icon } = statusConfig[status]
 
   return (
     <div className="flex flex-col gap-4 h-full">
 
-      {/* ── Header ─────────────────────────────────────────── */}
+      {/* Header row */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400">
-          Camera
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+          Camera Feed
         </h2>
-        <div className={cn('flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full text-white', colour)}>
-          <Icon size={12} className={cn(status === 'connecting' && 'animate-spin')} />
+        <div className="flex items-center gap-1.5 text-xs text-slate-400 glass px-2.5 py-1 rounded-full">
+          <span className={cn('w-1.5 h-1.5 rounded-full', dot,
+            status === 'connected' && 'animate-pulse')} />
+          <Icon size={11} className={cn(status === 'connecting' && 'animate-spin')} />
           {label}
         </div>
       </div>
 
-      {/* ── Video feed ─────────────────────────────────────── */}
-      <div className="relative rounded-2xl overflow-hidden bg-[#1a1a2e] flex-1 flex items-center justify-center min-h-0">
-
-        {/* Hidden canvas used for frame capture — never shown */}
+      {/* Video viewport */}
+      <div className="relative flex-1 rounded-xl overflow-hidden bg-black/40 min-h-0">
+        {/* Hidden capture canvas */}
         <canvas ref={canvasRef} width={640} height={480} className="hidden" />
 
-        {/* Webcam stream — mirrored via CSS to match canvas mirroring */}
+        {/* Live feed */}
         <video
           ref={videoRef}
           muted
           playsInline
           className={cn(
-            'w-full h-full object-cover',
-            '[transform:scaleX(-1)]',    // CSS mirror (visual only — canvas mirrors the actual sent frame)
+            'w-full h-full object-cover [transform:scaleX(-1)]',
             !isStreaming && 'hidden',
           )}
         />
 
-        {/* Placeholder when camera is off */}
+        {/* Camera-off placeholder */}
         {!isStreaming && (
-          <div className="flex flex-col items-center gap-3 text-slate-500">
-            <CameraOff size={48} strokeWidth={1} />
-            <p className="text-sm">
-              {error ?? (status === 'connecting' ? 'Waiting for server…' : 'Camera will start automatically')}
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-600">
+            <div className="w-16 h-16 rounded-2xl glass flex items-center justify-center">
+              <CameraOff size={28} strokeWidth={1.2} />
+            </div>
+            <p className="text-xs text-center max-w-[180px]">
+              {error ?? (status === 'connecting' ? 'Waiting for server…' : 'Camera starts automatically')}
             </p>
           </div>
         )}
 
-        {/* ── Prediction overlay (bottom of feed) ──────────── */}
-        {isStreaming && (
-          <div className="absolute bottom-0 left-0 right-0 p-3">
-            {prediction ? (
-              <div className="bg-black/60 backdrop-blur-sm rounded-xl p-3 flex items-center gap-3">
+        {/* ── Prediction overlay ───────────────────────── */}
+        <AnimatePresence>
+          {isStreaming && prediction && (
+            <motion.div
+              key="pred-bar"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0  }}
+              exit={{    opacity: 0, y: 12 }}
+              transition={{ duration: 0.2 }}
+              className="absolute bottom-0 left-0 right-0 p-3"
+            >
+              <div className="glass-strong rounded-xl p-3 flex items-center gap-4">
 
-                {/* Detected letter */}
-                <div className="text-4xl font-bold text-white w-12 text-center">
-                  {prediction.letter === 'space' ? '⎵' : prediction.letter === 'del' ? '⌫' : prediction.letter}
-                </div>
+                {/* Big animated letter */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={prediction.letter}
+                    initial={{ scale: 0.5, opacity: 0, rotateY: -90 }}
+                    animate={{ scale: 1,   opacity: 1, rotateY: 0   }}
+                    exit={{    scale: 0.5, opacity: 0, rotateY:  90 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0"
+                  >
+                    <span className="text-3xl font-bold gradient-text">
+                      {prediction.letter === 'space' ? '⎵'
+                       : prediction.letter === 'del'  ? '⌫'
+                       : prediction.letter}
+                    </span>
+                  </motion.div>
+                </AnimatePresence>
 
-                <div className="flex-1 space-y-1">
-                  <div className="flex justify-between text-xs text-slate-300">
-                    <span>Confidence</span>
-                    <span>{(prediction.confidence * 100).toFixed(0)}%</span>
+                {/* Confidence */}
+                <div className="flex-1 space-y-2 min-w-0">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-400">Confidence</span>
+                    <span className="text-white font-semibold tabular-nums">
+                      {(prediction.confidence * 100).toFixed(0)}%
+                    </span>
                   </div>
-                  {/* Confidence bar */}
                   <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-indigo-400 transition-all duration-150"
-                      style={{ width: `${prediction.confidence * 100}%` }}
+                    <motion.div
+                      className="h-full rounded-full confidence-bar"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${prediction.confidence * 100}%` }}
+                      transition={{ duration: 0.25, ease: 'easeOut' }}
                     />
                   </div>
+                  <p className="text-[10px] text-slate-500 truncate">
+                    {prediction.letter === 'space' ? 'Space'
+                     : prediction.letter === 'del'  ? 'Delete'
+                     : `Letter "${prediction.letter}"`}
+                  </p>
                 </div>
               </div>
-            ) : (
-              <div className="bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2 text-center text-slate-400 text-sm">
-                No hand detected
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* No hand */}
+        <AnimatePresence>
+          {isStreaming && !prediction && (
+            <motion.div
+              key="no-hand"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{    opacity: 0 }}
+              className="absolute bottom-3 left-3 right-3"
+            >
+              <div className="glass rounded-lg px-3 py-2 text-center text-xs text-slate-500">
+                No hand detected — show your hand to the camera
               </div>
-            )}
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* ── Camera controls ────────────────────────────────── */}
-      <button
+      {/* Camera toggle */}
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{   scale: 0.97 }}
         onClick={isStreaming ? stopCamera : startCamera}
         className={cn(
-          'flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors',
+          'flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors glass',
           isStreaming
-            ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
-            : 'bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20',
+            ? 'text-red-400 hover:bg-red-500/10'
+            : 'text-indigo-400 hover:bg-indigo-500/10',
         )}
       >
-        {isStreaming ? <><CameraOff size={16} /> Stop Camera</> : <><Camera size={16} /> Start Camera</>}
-      </button>
+        {isStreaming
+          ? <><CameraOff size={15} /> Stop Camera</>
+          : <><Camera    size={15} /> Start Camera</>}
+      </motion.button>
     </div>
   )
 }
