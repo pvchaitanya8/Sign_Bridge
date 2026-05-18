@@ -100,11 +100,15 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
       {/* ── Ring + status + preview ─────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
 
-        {/* Progress ring disc */}
-        <div className="neu" style={{
-          width: SIZE, height: SIZE, borderRadius: '50%', flexShrink: 0,
-          position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
+        {/* Progress ring disc — glows when holding */}
+        <div
+          className={pendingLetter ? 'neu disc-active' : 'neu'}
+          style={{
+            width: SIZE, height: SIZE, borderRadius: '50%', flexShrink: 0,
+            position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'box-shadow 0.4s ease',
+          }}
+        >
           {/* SVG ring */}
           <svg
             width={SIZE} height={SIZE}
@@ -132,19 +136,22 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
           <AnimatePresence mode="wait">
             <motion.span
               key={pendingLetter ?? 'empty'}
-              initial={{ scale: 0.5, opacity: 0 }}
+              initial={{ scale: 0.4, opacity: 0 }}
               animate={{ scale: 1,   opacity: 1 }}
-              exit={{    scale: 0.5, opacity: 0 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              exit={{    scale: 0.4, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
               className="mono"
               style={{
                 position: 'relative', zIndex: 1,
-                fontSize: pendingLetter ? '1.6rem' : '1.1rem',
+                fontSize: pendingLetter ? '1.65rem' : '1.1rem',
                 fontWeight: 900,
                 color: pendingLetter ? ringColour : 'var(--text-muted)',
+                textShadow: pendingLetter
+                  ? `0 0 12px ${ringColour === 'var(--red)' ? 'var(--red-glow)' : 'var(--green-glow)'}`
+                  : 'none',
               }}
             >
-              {!pendingLetter          ? '—'
+              {!pendingLetter              ? '—'
                : pendingLetter === 'space' ? '⎵'
                : pendingLetter === 'del'   ? '⌫'
                : pendingLetter.toUpperCase()}
@@ -153,27 +160,35 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
         </div>
 
         {/* Status line + sentence preview */}
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
           {/* Status */}
           <p style={{
-            fontSize: '0.72rem', fontWeight: 600,
-            color: pendingLetter ? 'var(--text-primary)' : 'var(--text-muted)',
+            fontSize: '0.72rem', fontWeight: 700,
+            color: pendingLetter
+              ? (pendingLetter === 'del' ? 'var(--red)' : 'var(--green)')
+              : 'var(--text-muted)',
             height: 18, letterSpacing: '0.01em',
+            transition: 'color 0.2s ease',
+            textShadow: pendingLetter
+              ? `0 0 8px ${pendingLetter === 'del' ? 'var(--red-glow)' : 'var(--green-glow)'}`
+              : 'none',
           }}>
             {pendingLetter
-              ? `Hold "${pendingLetter === 'space' ? 'SPACE' : pendingLetter === 'del' ? 'DEL' : pendingLetter.toUpperCase()}" — ${secondsLeft}s`
+              ? `Hold "${pendingLetter === 'space' ? 'SPACE' : pendingLetter === 'del' ? 'DEL' : pendingLetter.toUpperCase()}" · ${secondsLeft}s`
               : 'Waiting for sign…'}
           </p>
 
           {/* Sentence display — inset trough */}
           <div className="neu-inset-sm" style={{
-            height: 44, borderRadius: 12,
+            height: 46, borderRadius: 12,
             padding: '0 14px',
             display: 'flex', alignItems: 'center', overflow: 'hidden',
+            border: sentence ? '1px solid var(--green-border)' : '1px solid transparent',
+            transition: 'border-color 0.3s ease',
           }}>
             {sentence ? (
               <p className="mono" style={{
-                fontSize: '0.92rem', fontWeight: 600, letterSpacing: '0.04em',
+                fontSize: '0.94rem', fontWeight: 600, letterSpacing: '0.04em',
                 color: 'var(--text-primary)',
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               }}>
@@ -185,7 +200,7 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
                 }} />
               </p>
             ) : (
-              <p style={{ fontSize: '0.76rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+              <p style={{ fontSize: '0.76rem', color: 'var(--text-muted)', fontStyle: 'italic', letterSpacing: '0.01em' }}>
                 Your sentence appears here…
               </p>
             )}

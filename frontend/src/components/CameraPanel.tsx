@@ -102,31 +102,44 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
           {isStreaming && prediction && (
             <motion.div
               key="pred"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0  }}
-              exit={{    opacity: 0, y: 20 }}
-              transition={{ duration: 0.22 }}
-              style={{ position: 'absolute', bottom: 12, left: 12, right: 12 }}
+              initial={{ opacity: 0, y: 24, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0,  scale: 1    }}
+              exit={{    opacity: 0, y: 16, scale: 0.95 }}
+              transition={{ duration: 0.28, ease: [0.34, 1.2, 0.64, 1] }}
+              className="float"
+              style={{ position: 'absolute', bottom: 14, left: 12, right: 12 }}
             >
-              <div className="neu" style={{
-                padding: '14px 18px', borderRadius: 18,
+              <div style={{
+                background: 'rgba(var(--base-rgb, 45 45 45) / 0.82)',
+                backdropFilter: 'blur(14px)',
+                WebkitBackdropFilter: 'blur(14px)',
+                border: '1px solid var(--green-border)',
+                borderRadius: 20,
+                padding: '14px 18px',
                 display: 'flex', alignItems: 'center', gap: 18,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.28), 0 0 0 1px var(--green-border), 0 4px 20px var(--green-glow2)',
               }}>
-                {/* Animated letter */}
+                {/* Animated letter tile */}
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={prediction.letter}
-                    initial={{ rotateY: -90, scale: 0.6, opacity: 0 }}
-                    animate={{ rotateY: 0,   scale: 1,   opacity: 1 }}
-                    exit={{    rotateY:  90, scale: 0.6, opacity: 0 }}
-                    transition={{ duration: 0.18, ease: 'easeOut' }}
-                    className="neu-sm"
+                    initial={{ rotateY: -90, scale: 0.55, opacity: 0 }}
+                    animate={{ rotateY: 0,   scale: 1,    opacity: 1 }}
+                    exit={{    rotateY:  90, scale: 0.55, opacity: 0 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
                     style={{
-                      width: 60, height: 60, borderRadius: 16, flexShrink: 0,
+                      width: 70, height: 70, borderRadius: 18, flexShrink: 0,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: 'linear-gradient(135deg, var(--green-dim) 0%, rgba(52,211,153,0.08) 100%)',
+                      border: '1px solid var(--green-border)',
+                      boxShadow: '0 0 20px var(--green-glow), inset 0 1px 0 rgba(255,255,255,0.06)',
                     }}
                   >
-                    <span className="glow-green mono" style={{ fontSize: '1.8rem', fontWeight: 900 }}>
+                    <span className="mono" style={{
+                      fontSize: '2.1rem', fontWeight: 900,
+                      color: 'var(--green)',
+                      textShadow: '0 0 16px var(--green-glow), 0 0 32px var(--green-glow2)',
+                    }}>
                       {prediction.letter === 'space' ? '⎵'
                        : prediction.letter === 'del'  ? '⌫'
                        : prediction.letter.toUpperCase()}
@@ -134,26 +147,44 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
                   </motion.div>
                 </AnimatePresence>
 
-                {/* Confidence */}
-                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {/* Confidence section */}
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span className="label">Confidence</span>
-                    <span className="mono glow-green" style={{ fontSize: '0.9rem', fontWeight: 800 }}>
-                      {(prediction.confidence * 100).toFixed(0)}%
+                    <span style={{
+                      fontSize: '0.59rem', fontWeight: 700, letterSpacing: '0.14em',
+                      textTransform: 'uppercase', color: 'var(--text-muted)',
+                    }}>
+                      Confidence
                     </span>
+                    <motion.span
+                      key={prediction.confidence}
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0  }}
+                      className="mono"
+                      style={{
+                        fontSize: '1rem', fontWeight: 900,
+                        color: 'var(--green)',
+                        textShadow: '0 0 10px var(--green-glow)',
+                      }}
+                    >
+                      {(prediction.confidence * 100).toFixed(0)}%
+                    </motion.span>
                   </div>
                   <div className="confidence-track">
                     <motion.div
                       className="confidence-fill"
                       initial={{ width: 0 }}
                       animate={{ width: `${prediction.confidence * 100}%` }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      transition={{ duration: 0.3, ease: 'easeOut' }}
                     />
                   </div>
-                  <p className="label" style={{ color: 'var(--text-secondary)', fontSize: '0.6rem' }}>
-                    {prediction.letter === 'space' ? 'Space detected'
-                     : prediction.letter === 'del'  ? 'Delete detected'
-                     : `Letter "${prediction.letter.toUpperCase()}" detected`}
+                  <p style={{
+                    fontSize: '0.68rem', fontWeight: 500,
+                    color: 'var(--text-secondary)', letterSpacing: '0.01em',
+                  }}>
+                    {prediction.letter === 'space' ? '⎵  Space gesture detected'
+                     : prediction.letter === 'del'  ? '⌫  Delete gesture detected'
+                     : `Signing "${prediction.letter.toUpperCase()}"`}
                   </p>
                 </div>
               </div>
@@ -161,19 +192,29 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
           )}
         </AnimatePresence>
 
-        {/* No hand hint */}
+        {/* No hand hint — slim translucent bar */}
         <AnimatePresence>
           {isStreaming && !prediction && (
             <motion.div
               key="no-hand"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{    opacity: 0 }}
-              style={{ position: 'absolute', bottom: 12, left: 12, right: 12 }}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{    opacity: 0, y: 6 }}
+              transition={{ duration: 0.3 }}
+              style={{ position: 'absolute', bottom: 14, left: 12, right: 12 }}
             >
-              <div className="neu-inset-sm" style={{ padding: '8px 16px', borderRadius: 10, textAlign: 'center' }}>
-                <span className="label" style={{ color: 'var(--text-muted)' }}>
-                  No hand detected — show your hand to the camera
+              <div style={{
+                background: 'rgba(0,0,0,0.38)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: 10, padding: '7px 16px', textAlign: 'center',
+              }}>
+                <span style={{
+                  fontSize: '0.61rem', fontWeight: 700, letterSpacing: '0.12em',
+                  textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)',
+                }}>
+                  ✋ Show your hand to the camera
                 </span>
               </div>
             </motion.div>

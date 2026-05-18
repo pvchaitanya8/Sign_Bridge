@@ -59,78 +59,127 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
       </div>
 
       {/* ── Mic row ─────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
 
-        {/* Circular mic button */}
-        <motion.button
-          whileHover={{ scale: 1.07 }}
-          whileTap={{   scale: 0.92 }}
-          onClick={handleToggle}
-          className={isListening ? 'mic-ring' : 'neu'}
-          style={{
-            width: 56, height: 56, borderRadius: '50%', flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: 'none', cursor: 'pointer',
-            background: isListening ? 'var(--green-dim)' : 'var(--base)',
-            color: isListening ? 'var(--green)' : 'var(--text-secondary)',
-            transition: 'background 0.25s ease, color 0.25s ease',
-          }}
-          aria-label={isListening ? 'Stop recording' : 'Start recording'}
-        >
-          <AnimatePresence mode="wait">
-            {isListening ? (
-              <motion.span key="stop"
-                initial={{ rotate: -20, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }}
-                exit={{    rotate:  20, opacity: 0 }} transition={{ duration: 0.15 }}
-                style={{ display: 'flex' }}
-              >
-                <MicOff size={22} />
-              </motion.span>
-            ) : (
-              <motion.span key="start"
-                initial={{ rotate: 20,  opacity: 0 }} animate={{ rotate: 0, opacity: 1 }}
-                exit={{    rotate: -20, opacity: 0 }} transition={{ duration: 0.15 }}
-                style={{ display: 'flex' }}
-              >
-                <Mic size={22} />
-              </motion.span>
-            )}
+        {/* Mic button + ripple rings container */}
+        <div style={{ position: 'relative', flexShrink: 0, width: 64, height: 64 }}>
+
+          {/* Concentric ripple rings — rendered when listening */}
+          <AnimatePresence>
+            {isListening && ([0, 1] as const).map(i => (
+              <motion.div
+                key={i}
+                initial={{ scale: 1, opacity: 0.5 }}
+                animate={{ scale: 2.5, opacity: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 1.8,
+                  repeat: Infinity,
+                  ease: 'easeOut',
+                  delay: i * 0.7,
+                }}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: '50%',
+                  border: '2px solid var(--green)',
+                  pointerEvents: 'none',
+                }}
+              />
+            ))}
           </AnimatePresence>
-        </motion.button>
+
+          {/* Button itself */}
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{   scale: 0.91 }}
+            onClick={handleToggle}
+            style={{
+              position: 'absolute', inset: 0,
+              borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: 'none', cursor: 'pointer', zIndex: 1,
+              background: isListening
+                ? 'linear-gradient(135deg, var(--green-dim), var(--green-deep))'
+                : 'var(--base)',
+              color: isListening ? '#ffffff' : 'var(--text-secondary)',
+              boxShadow: isListening
+                ? '0 0 0 3px var(--green-border), 0 6px 24px var(--green-glow)'
+                : 'var(--shadow-raised)',
+              transition: 'background 0.3s ease, color 0.25s ease, box-shadow 0.3s ease',
+            }}
+            aria-label={isListening ? 'Stop recording' : 'Start recording'}
+          >
+            <AnimatePresence mode="wait">
+              {isListening ? (
+                <motion.span key="stop"
+                  initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                  exit={{    scale: 0.5, opacity: 0 }} transition={{ duration: 0.18 }}
+                  style={{ display: 'flex' }}
+                >
+                  <MicOff size={24} />
+                </motion.span>
+              ) : (
+                <motion.span key="start"
+                  initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                  exit={{    scale: 0.5, opacity: 0 }} transition={{ duration: 0.18 }}
+                  style={{ display: 'flex' }}
+                >
+                  <Mic size={24} />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </div>
 
         {/* Label + interim */}
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
-          <p style={{
-            fontSize: '0.86rem', fontWeight: 700,
-            color: isListening ? 'var(--green)' : 'var(--text-primary)',
-            lineHeight: 1, transition: 'color 0.2s ease',
-          }}>
-            {isListening ? 'Recording…' : 'Tap to reply by voice'}
-          </p>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={isListening ? 'rec' : 'idle'}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{    opacity: 0, y: -4 }}
+              transition={{ duration: 0.18 }}
+              style={{
+                fontSize: '0.88rem', fontWeight: 700,
+                color: isListening ? 'var(--green)' : 'var(--text-primary)',
+                lineHeight: 1,
+                textShadow: isListening ? '0 0 10px var(--green-glow)' : 'none',
+              }}
+            >
+              {isListening ? 'Recording…' : 'Tap to reply by voice'}
+            </motion.p>
+          </AnimatePresence>
 
-          {/* Interim transcript or label */}
+          {/* Interim transcript or hint label */}
           <AnimatePresence mode="wait">
             {isListening && interim ? (
-              <motion.p
+              <motion.div
                 key="interim"
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{    opacity: 0       }}
-                style={{
-                  fontSize: '0.76rem', color: 'var(--text-secondary)',
+                className="neu-inset-sm"
+                style={{ borderRadius: 8, padding: '4px 10px' }}
+              >
+                <p style={{
+                  fontSize: '0.74rem', color: 'var(--text-secondary)',
                   fontStyle: 'italic',
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                }}
-              >
-                "{interim}"
-              </motion.p>
+                }}>
+                  {interim}
+                </p>
+              </motion.div>
             ) : (
               <motion.p
                 key="hint"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                style={{ fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.12em',
-                         textTransform: 'uppercase', color: 'var(--text-muted)' }}
+                style={{
+                  fontSize: '0.61rem', fontWeight: 700, letterSpacing: '0.12em',
+                  textTransform: 'uppercase', color: 'var(--text-muted)',
+                }}
               >
                 {isListening ? 'Tap again to stop' : 'Listener side · STT'}
               </motion.p>

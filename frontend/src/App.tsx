@@ -128,9 +128,9 @@ export default function App() {
 
         {/* Left — camera */}
         <motion.div
-          initial={{ x: -36, opacity: 0 }}
-          animate={{ x: 0,   opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+          initial={{ x: -40, opacity: 0, scale: 0.97 }}
+          animate={{ x: 0,   opacity: 1, scale: 1    }}
+          transition={{ duration: 0.55, delay: 0.1, ease: [0.34, 1.1, 0.64, 1] }}
           className="neu-lg"
           style={{ display: 'flex', flexDirection: 'column', padding: 24, minHeight: 0, overflow: 'hidden' }}
         >
@@ -139,9 +139,9 @@ export default function App() {
 
         {/* Right — stacked conversation panel */}
         <motion.div
-          initial={{ x: 36, opacity: 0 }}
-          animate={{ x: 0,  opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.18, ease: 'easeOut' }}
+          initial={{ x: 40, opacity: 0, scale: 0.97 }}
+          animate={{ x: 0,  opacity: 1, scale: 1    }}
+          transition={{ duration: 0.55, delay: 0.2, ease: [0.34, 1.1, 0.64, 1] }}
           className="neu-lg"
           style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}
         >

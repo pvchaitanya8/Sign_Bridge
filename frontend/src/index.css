@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════
-   SIGNBRIDGE — Neumorphic Design System
+   SIGNBRIDGE — Neumorphic Design System  v2.1
    Dual-theme: dark (default) + light
    Shadow math based on neumorphism.io
 
@@ -30,9 +30,12 @@
   --text-muted:     #555555;
 
   --green:       #34d399;
+  --green-mid:   #10b981;
+  --green-deep:  #047857;
   --green-dim:   #1a4032;
-  --green-glow:  rgba(52, 211, 153, 0.25);
-  --green-border:rgba(52, 211, 153, 0.22);
+  --green-glow:  rgba(52, 211, 153, 0.28);
+  --green-glow2: rgba(52, 211, 153, 0.12);
+  --green-border:rgba(52, 211, 153, 0.30);
 
   --blue:        #60a5fa;
   --blue-glow:   rgba(96, 165, 250, 0.22);
@@ -72,9 +75,12 @@
   --text-muted:     #999999;
 
   --green:       #059669;
+  --green-mid:   #047857;
+  --green-deep:  #065f46;
   --green-dim:   #d1fae5;
-  --green-glow:  rgba(5, 150, 105, 0.18);
-  --green-border:rgba(5, 150, 105, 0.25);
+  --green-glow:  rgba(5, 150, 105, 0.22);
+  --green-glow2: rgba(5, 150, 105, 0.08);
+  --green-border:rgba(5, 150, 105, 0.30);
 
   --blue:        #2563eb;
   --blue-glow:   rgba(37, 99, 235, 0.18);
@@ -173,29 +179,34 @@ body {
   transform: scale(0.97);
 }
 
-/* Green primary action button */
+/* Green primary action button — solid gradient fill */
 .neu-btn-primary {
-  background: var(--base);
-  box-shadow: var(--shadow-raised-sm), 0 0 18px var(--green-glow);
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-mid) 60%, var(--green-deep) 100%);
+  box-shadow: var(--shadow-raised-sm), 0 6px 28px var(--green-glow), 0 2px 8px var(--green-glow2);
   border-radius: 12px;
-  border: 1px solid var(--green-border);
-  color: var(--green);
+  border: none;
+  color: #ffffff;
   cursor: pointer;
   outline: none;
-  transition: box-shadow 0.22s ease, transform 0.12s ease, background-color 0.3s ease;
+  font-weight: 800;
+  transition: box-shadow 0.22s ease, transform 0.12s ease, filter 0.18s ease;
 }
 .neu-btn-primary:hover {
-  box-shadow: var(--shadow-raised), 0 0 28px var(--green-glow);
+  box-shadow: var(--shadow-raised), 0 8px 36px var(--green-glow), 0 2px 12px var(--green-glow2);
+  filter: brightness(1.08);
 }
 .neu-btn-primary:active {
-  box-shadow: var(--shadow-inset-sm), 0 0 12px var(--green-glow);
+  box-shadow: 0 2px 12px var(--green-glow);
   transform: scale(0.97);
+  filter: brightness(0.96);
 }
 .neu-btn-primary:disabled {
+  background: var(--base);
   box-shadow: var(--shadow-raised-sm);
-  border-color: transparent;
+  border: 1px solid transparent;
   color: var(--text-muted);
   cursor: not-allowed;
+  filter: none;
 }
 
 /* Red / danger button */
@@ -368,6 +379,41 @@ body {
   50%       { opacity: 0; }
 }
 .cursor { animation: blink-cursor 1s step-end infinite; }
+
+/* Gentle float — for prediction overlay card */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-5px); }
+}
+.float { animation: float 3.2s ease-in-out infinite; }
+
+/* Ripple / sonar rings — for mic button when listening */
+@keyframes ripple-wave {
+  0%   { transform: scale(1);   opacity: 0.55; }
+  100% { transform: scale(2.6); opacity: 0;    }
+}
+
+/* Letter confirm pop — triggered via JS className swap */
+@keyframes letter-pop {
+  0%   { transform: scale(1);    }
+  40%  { transform: scale(1.35); }
+  70%  { transform: scale(0.92); }
+  100% { transform: scale(1);    }
+}
+.letter-pop { animation: letter-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* Green glow pulse — ring disc when a sign is being held */
+@keyframes disc-glow {
+  0%, 100% { box-shadow: var(--shadow-raised), 0 0 12px var(--green-glow); }
+  50%       { box-shadow: var(--shadow-raised), 0 0 30px var(--green-glow), 0 0 50px var(--green-glow2); }
+}
+.disc-active { animation: disc-glow 1.6s ease-in-out infinite; }
+
+/* Audio bars — animated waveform hint when mic is active */
+@keyframes audio-bar {
+  0%, 100% { transform: scaleY(0.35); }
+  50%       { transform: scaleY(1);   }
+}
 
 /* Smooth theme transition on all neu surfaces */
 @media (prefers-reduced-motion: reduce) {

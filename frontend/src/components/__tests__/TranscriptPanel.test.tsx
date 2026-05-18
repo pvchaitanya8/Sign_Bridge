@@ -24,7 +24,7 @@ function makeMessage(overrides: Partial<Message> = {}): Message {
 describe('TranscriptPanel — empty state', () => {
   it('renders empty-state copy when there are no messages', () => {
     render(<TranscriptPanel messages={[]} onSpeak={vi.fn()} />)
-    expect(screen.getByText(/no messages yet/i)).toBeInTheDocument()
+    expect(screen.getByText(/ready for conversation/i)).toBeInTheDocument()
   })
 
   it('does NOT show the message count badge with 0 messages', () => {
