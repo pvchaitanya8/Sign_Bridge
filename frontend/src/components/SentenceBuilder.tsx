@@ -11,7 +11,7 @@ interface SentenceBuilderProps {
 
 const HOLD_MS        = 1500
 const MIN_CONFIDENCE = 0.45
-const RADIUS         = 30          // bigger ring
+const RADIUS         = 30
 const CIRCUMFERENCE  = 2 * Math.PI * RADIUS
 
 export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
@@ -74,20 +74,19 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
     onSend(sentence.trim()); clearSentence()
   }
 
-  const ringOffset = CIRCUMFERENCE * (1 - progress)
-  const ringColour =
+  const ringOffset  = CIRCUMFERENCE * (1 - progress)
+  const ringColour  =
     pendingLetter === 'del'   ? 'var(--red)'   :
     pendingLetter === 'space' ? 'var(--green)'  : 'var(--blue)'
   const secondsLeft = ((1 - progress) * HOLD_MS / 1000).toFixed(1)
-  const SIZE = 80  // disc diameter
+  const SIZE = 80
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
       {/* ── Header ─────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        {/* Glass section label */}
-        <div className="glass-pill" style={{
+        <div className="skeu-chip" style={{
           display: 'flex', alignItems: 'center', gap: 6,
           padding: '5px 12px',
         }}>
@@ -98,8 +97,7 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
           }}>Sentence Builder</span>
         </div>
 
-        {/* Glass hint badge */}
-        <div className="glass-pill" style={{ padding: '4px 10px' }}>
+        <div className="skeu-chip" style={{ padding: '4px 10px' }}>
           <span className="label" style={{ color: 'var(--text-muted)', fontSize: '0.57rem' }}>
             Hold 1.5 s to confirm
           </span>
@@ -109,9 +107,9 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
       {/* ── Ring + status + preview ─────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
 
-        {/* Progress ring disc — glows when holding */}
+        {/* Progress ring disc — skeuomorphic raised dial */}
         <div
-          className={pendingLetter ? 'neu disc-active' : 'neu'}
+          className={pendingLetter ? 'skeu-raised disc-active' : 'skeu-raised'}
           style={{
             width: SIZE, height: SIZE, borderRadius: '50%', flexShrink: 0,
             position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -124,13 +122,13 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
             viewBox={`0 0 ${SIZE} ${SIZE}`}
             style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}
           >
-            {/* Track */}
+            {/* Track — dark trough */}
             <circle
               cx={SIZE / 2} cy={SIZE / 2} r={RADIUS}
               fill="none"
-              style={{ stroke: 'var(--shadow-dark)', strokeWidth: 5 }}
+              style={{ stroke: 'var(--srf-inset-bg)', strokeWidth: 5 }}
             />
-            {/* Progress arc — style prop so CSS vars resolve inside SVG */}
+            {/* Progress arc */}
             <motion.circle
               cx={SIZE / 2} cy={SIZE / 2} r={RADIUS}
               fill="none"
@@ -170,7 +168,6 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
 
         {/* Status line + sentence preview */}
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
-          {/* Status */}
           <p style={{
             fontSize: '0.72rem', fontWeight: 700,
             color: pendingLetter
@@ -187,25 +184,27 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
               : 'Waiting for sign…'}
           </p>
 
-          {/* Sentence display — inset trough */}
-          <div className="neu-inset-sm" style={{
+          {/* Sentence display — inset LCD readout */}
+          <div className="skeu-inset-sm" style={{
             height: 46, borderRadius: 12,
             padding: '0 14px',
             display: 'flex', alignItems: 'center', overflow: 'hidden',
-            border: sentence ? '1px solid var(--green-border)' : '1px solid transparent',
+            borderTopColor: sentence ? 'rgba(52,211,153,0.48)' : undefined,
             transition: 'border-color 0.3s ease',
           }}>
             {sentence ? (
               <p className="mono" style={{
                 fontSize: '0.94rem', fontWeight: 600, letterSpacing: '0.04em',
-                color: 'var(--text-primary)',
+                color: 'var(--green)',
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                textShadow: '0 0 8px var(--green-glow2)',
               }}>
                 {sentence}
                 <span className="cursor" style={{
                   display: 'inline-block', width: 2, height: 15,
                   background: 'var(--green)', marginLeft: 3,
                   verticalAlign: 'middle', borderRadius: 1,
+                  boxShadow: '0 0 4px var(--green-glow)',
                 }} />
               </p>
             ) : (
@@ -225,7 +224,7 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
           whileTap={{ scale: 0.94 }}
           onClick={clearSentence}
           disabled={!sentence}
-          className={cn('neu-btn', !sentence && 'opacity-40 cursor-not-allowed')}
+          className={cn('skeu-btn', !sentence && 'opacity-40 cursor-not-allowed')}
           style={{
             width: 46, height: 46, flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -241,7 +240,7 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
           whileTap={{ scale: 0.94 }}
           onClick={copySentence}
           disabled={!sentence}
-          className={cn('neu-btn', !sentence && 'opacity-40 cursor-not-allowed')}
+          className={cn('skeu-btn', !sentence && 'opacity-40 cursor-not-allowed')}
           style={{
             width: 46, height: 46, flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -254,14 +253,14 @@ export function SentenceBuilder({ prediction, onSend }: SentenceBuilderProps) {
             : <Copy  size={15} />}
         </motion.button>
 
-        {/* Speak & Send — hero button */}
+        {/* Speak & Send — primary CTA */}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{   scale: 0.97 }}
           onClick={sendSentence}
           disabled={!sentence.trim()}
           className={cn(
-            sentence.trim() ? 'neu-btn-primary' : 'neu-btn opacity-40 cursor-not-allowed',
+            sentence.trim() ? 'skeu-btn-primary' : 'skeu-btn opacity-40 cursor-not-allowed',
           )}
           style={{
             flex: 1, height: 46, borderRadius: 13,

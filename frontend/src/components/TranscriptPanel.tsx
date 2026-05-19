@@ -28,8 +28,7 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         marginBottom: 14, flexShrink: 0,
       }}>
-        {/* Glass section label */}
-        <div className="glass-pill" style={{
+        <div className="skeu-chip" style={{
           display: 'flex', alignItems: 'center', gap: 6,
           padding: '5px 12px',
         }}>
@@ -40,14 +39,14 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
           }}>Conversation</span>
         </div>
 
-        {/* Message count — glass pill badge */}
+        {/* Message count chip */}
         <AnimatePresence>
           {messages.length > 0 && (
             <motion.div
               initial={{ opacity: 0, scale: 0.7 }}
               animate={{ opacity: 1, scale: 1   }}
               exit={{    opacity: 0, scale: 0.7 }}
-              className="glass-pill"
+              className="skeu-chip"
               style={{ padding: '4px 12px' }}
             >
               <span style={{
@@ -61,9 +60,9 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
         </AnimatePresence>
       </div>
 
-      {/* ── Scrollable feed ─────────────────────────────── */}
+      {/* ── Scrollable feed — inset screen trough ──────── */}
       <div
-        className="neu-inset-lg"
+        className="skeu-inset-lg"
         style={{
           flex: 1, minHeight: 0,
           overflowY: 'auto',
@@ -71,77 +70,147 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
           display: 'flex', flexDirection: 'column', gap: 12,
         }}
       >
-        {/* Empty state */}
+        {/* Empty state — terminal screen aesthetic */}
         <AnimatePresence>
           {messages.length === 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0  }}
-              exit={{    opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.35 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{    opacity: 0 }}
+              transition={{ duration: 0.4 }}
               style={{
                 flex: 1, display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center', gap: 20,
+                alignItems: 'center', justifyContent: 'center', gap: 28,
+                position: 'relative',
+                /* no overflow:hidden here — it would clip the floating icons */
+                paddingTop: 20, paddingBottom: 20,
               }}
             >
-              {/* Animated icon pair with connector dots */}
-              <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-                <motion.div
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+              {/* CRT scan-line — isolated in its own overflow:hidden shell */}
+              <div style={{
+                position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none',
+              }}>
+                <div className="scan-line" />
+              </div>
+
+              {/* Icon pair — floating metal enclosures */}
+              <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+
+                {/* Signer icon box — CSS float, no JS animation loop */}
+                <div
                   style={{
-                    width: 52, height: 52, borderRadius: 16,
+                    width: 72, height: 72, borderRadius: 20, flexShrink: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'linear-gradient(135deg, var(--green-dim), rgba(52,211,153,0.04))',
-                    border: '1px solid var(--green-border)',
-                    boxShadow: '0 0 20px var(--green-glow2)',
+                    background:
+                      'linear-gradient(160deg,' +
+                      '  rgba(46,235,160,0.32) 0%,' +
+                      '  rgba(20,60,36,0.96)   30%,' +
+                      '  rgba(6,20,12,0.98)   100%)',
+                    border: '1.5px solid',
+                    borderTopColor:    'rgba(46,235,160,0.80)',
+                    borderLeftColor:   'rgba(46,235,160,0.50)',
+                    borderBottomColor: 'rgba(0,0,0,0.80)',
+                    borderRightColor:  'rgba(0,0,0,0.60)',
+                    boxShadow:
+                      'inset 0 2px 0 rgba(46,235,160,0.40),' +
+                      'inset 0 -1px 0 rgba(0,0,0,0.60),' +
+                      '0 6px 20px rgba(0,0,0,0.70),' +
+                      '0 0 32px rgba(46,235,160,0.55),' +
+                      '0 0 64px rgba(46,235,160,0.22)',
                   }}
                 >
-                  <Hand size={22} strokeWidth={1.4} style={{ color: 'var(--green)' }} />
-                </motion.div>
+                  <Hand size={30} strokeWidth={1.5}
+                    className="icon-glow-green"
+                    style={{ color: 'var(--green)' }}
+                  />
+                </div>
 
-                <div style={{ display: 'flex', gap: 4 }}>
-                  {[0, 1, 2].map(i => (
-                    <motion.div
+                {/* Animated separator dots — CSS only */}
+                <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
+                  {([0, 1, 2] as const).map(i => (
+                    <div
                       key={i}
-                      animate={{ opacity: [0.2, 1, 0.2] }}
-                      transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.22 }}
+                      className={`dot-pulse-${i}`}
                       style={{
-                        width: 5, height: 5, borderRadius: '50%',
-                        background: 'var(--text-muted)',
+                        width: 7, height: 7, borderRadius: '50%',
+                        background: 'var(--green)',
+                        boxShadow: '0 0 8px var(--green-glow), 0 0 16px var(--green-glow2)',
                       }}
                     />
                   ))}
                 </div>
 
-                <motion.div
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+                {/* Listener icon box — CSS float with phase offset */}
+                <div
                   style={{
-                    width: 52, height: 52, borderRadius: 16,
+                    width: 72, height: 72, borderRadius: 20, flexShrink: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'linear-gradient(135deg, var(--blue-glow), rgba(96,165,250,0.04))',
-                    border: '1px solid var(--blue-glow)',
-                    boxShadow: '0 0 20px var(--blue-glow)',
+                    background:
+                      'linear-gradient(160deg,' +
+                      '  rgba(110,180,255,0.30) 0%,' +
+                      '  rgba(12,28,72,0.96)   30%,' +
+                      '  rgba(4,10,38,0.98)    100%)',
+                    border: '1.5px solid',
+                    borderTopColor:    'rgba(110,180,255,0.76)',
+                    borderLeftColor:   'rgba(110,180,255,0.46)',
+                    borderBottomColor: 'rgba(0,0,0,0.80)',
+                    borderRightColor:  'rgba(0,0,0,0.60)',
+                    boxShadow:
+                      'inset 0 2px 0 rgba(110,180,255,0.36),' +
+                      'inset 0 -1px 0 rgba(0,0,0,0.60),' +
+                      '0 6px 20px rgba(0,0,0,0.70),' +
+                      '0 0 32px rgba(110,180,255,0.52),' +
+                      '0 0 64px rgba(110,180,255,0.20)',
                   }}
                 >
-                  <Mic size={22} strokeWidth={1.4} style={{ color: 'var(--blue)' }} />
-                </motion.div>
+                  <Mic size={30} strokeWidth={1.5}
+                    className="icon-glow-blue"
+                    style={{ color: 'var(--blue)' }}
+                  />
+                </div>
               </div>
 
-              <div style={{ textAlign: 'center' }}>
+              {/* Text block — uses explicit light colors for inset readability */}
+              <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <p style={{
-                  fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-secondary)',
-                  marginBottom: 8, letterSpacing: '-0.01em',
+                  fontSize: '0.90rem', fontWeight: 700,
+                  color: 'var(--text-on-inset)',
+                  letterSpacing: '-0.01em',
                 }}>
                   Ready for conversation
                 </p>
-                <p className="label" style={{ lineHeight: 1.9, fontSize: '0.59rem' }}>
-                  Sign a message and press{' '}
-                  <span style={{ color: 'var(--green)' }}>Speak &amp; Send</span><br />
-                  or tap the mic for a voice reply
-                </p>
+
+                {/* Step hints — always light text */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                  <p style={{
+                    fontSize: '0.62rem', fontWeight: 700,
+                    letterSpacing: '0.11em', textTransform: 'uppercase',
+                    color: 'var(--text-on-inset-dim)',
+                  }}>
+                    Sign a message and press{' '}
+                    <span style={{
+                      color: 'var(--green)',
+                      textShadow: '0 0 8px var(--green-glow)',
+                    }}>
+                      Speak &amp; Send
+                    </span>
+                  </p>
+                  <p style={{
+                    fontSize: '0.62rem', fontWeight: 700,
+                    letterSpacing: '0.11em', textTransform: 'uppercase',
+                    color: 'var(--text-on-inset-muted)',
+                  }}>
+                    or tap the mic for a voice reply
+                  </p>
+                </div>
               </div>
+
+              {/* Ambient bottom glow line */}
+              <div style={{
+                position: 'absolute', bottom: 0, left: '15%', right: '15%', height: 1,
+                background: 'linear-gradient(90deg, transparent, var(--green-border), transparent)',
+                opacity: 0.5,
+              }} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -161,7 +230,7 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
                   flexDirection: isSigner ? 'row' : 'row-reverse',
                 }}
               >
-                {/* Avatar */}
+                {/* Avatar — raised metal disc */}
                 <motion.div
                   initial={{ scale: 0.6, opacity: 0 }}
                   animate={{ scale: 1,   opacity: 1 }}
@@ -170,15 +239,15 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
                     width: 32, height: 32, borderRadius: 10, flexShrink: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     marginBottom: 2,
-                    background: isSigner
-                      ? 'linear-gradient(135deg, var(--green-dim), rgba(52,211,153,0.06))'
-                      : 'linear-gradient(135deg, var(--blue-glow), rgba(96,165,250,0.06))',
-                    border: isSigner
-                      ? '1px solid var(--green-border)'
-                      : '1px solid var(--blue-glow)',
+                    background: 'linear-gradient(175deg, var(--srf-raise-hi) 0%, var(--base) 55%, var(--srf-raise-lo) 100%)',
+                    border: '1px solid',
+                    borderTopColor:    isSigner ? 'rgba(52,211,153,0.35)'  : 'rgba(96,165,250,0.28)',
+                    borderLeftColor:   isSigner ? 'rgba(52,211,153,0.20)'  : 'rgba(96,165,250,0.16)',
+                    borderBottomColor: 'var(--bevel-lo)',
+                    borderRightColor:  'rgba(0,0,0,0.38)',
                     boxShadow: isSigner
-                      ? '0 2px 10px var(--green-glow2)'
-                      : '0 2px 10px var(--blue-glow)',
+                      ? 'inset 0 1px 0 rgba(52,211,153,0.12), 0 3px 8px rgba(0,0,0,0.45), 0 0 8px var(--green-glow2)'
+                      : 'inset 0 1px 0 rgba(96,165,250,0.10), 0 3px 8px rgba(0,0,0,0.45), 0 0 8px var(--blue-glow)',
                     color: isSigner ? 'var(--green)' : 'var(--blue)',
                   }}
                 >
@@ -196,9 +265,9 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
                     gap: 5,
                   }}
                 >
-                  {/* Glass bubble — green for signer, blue for listener */}
+                  {/* Skeuomorphic message bubble */}
                   <div
-                    className={isSigner ? 'glass-green' : 'glass-blue'}
+                    className={isSigner ? 'skeu-bubble-signer' : 'skeu-bubble-listener'}
                     style={{
                       padding: '10px 14px',
                       ...(isSigner
@@ -217,7 +286,7 @@ export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
 
                   {/* Hover meta row */}
                   <div
-                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    className={cn('opacity-0 group-hover:opacity-100 transition-opacity duration-200')}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 6,
                       flexDirection: isSigner ? 'row' : 'row-reverse',

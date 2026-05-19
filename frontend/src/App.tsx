@@ -54,7 +54,7 @@ export default function App() {
         initial={{ y: -28, opacity: 0 }}
         animate={{ y: 0,   opacity: 1 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="glass-nav flex-shrink-0"
+        className="skeu-nav flex-shrink-0"
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '14px 28px', margin: '16px 16px 0', borderRadius: 22,
@@ -63,7 +63,7 @@ export default function App() {
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           {/* Logo disc — neumorphic for tactile contrast against glass nav */}
-          <div className="neu" style={{
+          <div className="skeu-raised" style={{
             width: 44, height: 44, borderRadius: 14, flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
@@ -86,7 +86,7 @@ export default function App() {
           </div>
 
           {/* Glass version badge */}
-          <div className="glass-pill" style={{ padding: '4px 12px', marginLeft: 4 }}>
+          <div className="skeu-chip" style={{ padding: '4px 12px', marginLeft: 4 }}>
             <span className="label" style={{ color: 'var(--blue)', fontSize: '0.58rem' }}>v2.0</span>
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function App() {
         {/* Right: hint + toggle */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {/* Glass hint pill */}
-          <div className="glass-pill" style={{
+          <div className="skeu-chip" style={{
             padding: '5px 14px',
             display: 'none',  /* shown via sm:flex on wider viewports */
           }}>
@@ -114,7 +114,7 @@ export default function App() {
               whileHover={{ scale: 1.1 }}
               whileTap={{   scale: 0.9 }}
               onClick={toggleTheme}
-              className="neu-toggle"
+              className="skeu-toggle"
               style={{ width: 42, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             >
@@ -138,7 +138,7 @@ export default function App() {
           initial={{ x: -40, opacity: 0, scale: 0.97 }}
           animate={{ x: 0,   opacity: 1, scale: 1    }}
           transition={{ duration: 0.55, delay: 0.1, ease: [0.34, 1.1, 0.64, 1] }}
-          className="neu-lg"
+          className="skeu-panel"
           style={{ display: 'flex', flexDirection: 'column', padding: 24, minHeight: 0, overflow: 'hidden' }}
         >
           <CameraPanel sendFrame={sendFrame} prediction={prediction} status={status} />
@@ -149,7 +149,7 @@ export default function App() {
           initial={{ x: 40, opacity: 0, scale: 0.97 }}
           animate={{ x: 0,  opacity: 1, scale: 1    }}
           transition={{ duration: 0.55, delay: 0.2, ease: [0.34, 1.1, 0.64, 1] }}
-          className="neu-lg"
+          className="skeu-panel"
           style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}
         >
           {/* ① Transcript — grows to fill all available space */}
@@ -157,14 +157,14 @@ export default function App() {
             <TranscriptPanel messages={messages} onSpeak={handleSpeak} />
           </div>
 
-          <div className="neu-divider" />
+          <div className="skeu-divider" />
 
           {/* ② Sentence builder */}
           <div style={{ padding: '20px 24px', flexShrink: 0 }}>
             <SentenceBuilder prediction={prediction} onSend={handleSignerSend} />
           </div>
 
-          <div className="neu-divider" />
+          <div className="skeu-divider" />
 
           {/* ③ Listener reply */}
           <div style={{ padding: '16px 24px 22px', flexShrink: 0 }}>

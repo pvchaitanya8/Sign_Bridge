@@ -14,11 +14,11 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
 
   if (!isSupported) {
     return (
-      <div className="glass-pill" style={{
+      <div className="skeu-chip" style={{
         display: 'flex', alignItems: 'center', gap: 10,
         padding: '10px 16px', borderRadius: 12,
-        background: 'rgba(251,191,36,0.07)',
-        borderColor: 'rgba(251,191,36,0.20)',
+        borderTopColor: 'rgba(251,191,36,0.38)',
+        borderLeftColor: 'rgba(251,191,36,0.22)',
       }}>
         <AlertCircle size={14} style={{ color: 'var(--amber)', flexShrink: 0 }} />
         <p style={{ fontSize: '0.74rem', fontWeight: 500, color: 'var(--amber)' }}>
@@ -33,8 +33,7 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
 
       {/* ── Header ─────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        {/* Glass section label */}
-        <div className="glass-pill" style={{
+        <div className="skeu-chip" style={{
           display: 'flex', alignItems: 'center', gap: 6,
           padding: '5px 12px',
         }}>
@@ -45,7 +44,7 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
           }}>Listener Reply</span>
         </div>
 
-        {/* Listening indicator — glass green pill */}
+        {/* Listening indicator — skeu chip with green accent */}
         <AnimatePresence>
           {isListening && (
             <motion.div
@@ -53,12 +52,12 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
               animate={{ opacity: 1, scale: 1,    x: 0 }}
               exit={{    opacity: 0, scale: 0.85, x: 8 }}
               transition={{ type: 'spring', stiffness: 380, damping: 22 }}
-              className="glass-pill"
+              className="skeu-chip"
               style={{
                 display: 'flex', alignItems: 'center', gap: 7,
                 padding: '5px 12px',
-                background: 'rgba(52,211,153,0.10)',
-                borderColor: 'rgba(52,211,153,0.25)',
+                borderTopColor: 'rgba(52,211,153,0.45)',
+                borderLeftColor: 'rgba(52,211,153,0.28)',
               }}
             >
               <span className="led led-green led-pulse" />
@@ -79,7 +78,7 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
         {/* Mic button + ripple rings container */}
         <div style={{ position: 'relative', flexShrink: 0, width: 64, height: 64 }}>
 
-          {/* Concentric ripple rings — rendered when listening */}
+          {/* Concentric ripple rings when listening */}
           <AnimatePresence>
             {isListening && ([0, 1] as const).map(i => (
               <motion.div
@@ -104,7 +103,7 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
             ))}
           </AnimatePresence>
 
-          {/* Button itself */}
+          {/* Physical mic button — 3-D raised / pressed */}
           <motion.button
             whileHover={{ scale: 1.08 }}
             whileTap={{   scale: 0.91 }}
@@ -113,15 +112,16 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
               position: 'absolute', inset: 0,
               borderRadius: '50%',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: 'none', cursor: 'pointer', zIndex: 1,
-              background: isListening
-                ? 'linear-gradient(135deg, var(--green-dim), var(--green-deep))'
-                : 'var(--base)',
+              cursor: 'pointer', zIndex: 1,
+              background: isListening ? 'var(--btn-green-grad)' : 'var(--btn-grad)',
               color: isListening ? '#ffffff' : 'var(--text-secondary)',
-              boxShadow: isListening
-                ? '0 0 0 3px var(--green-border), 0 6px 24px var(--green-glow)'
-                : 'var(--shadow-raised)',
-              transition: 'background 0.3s ease, color 0.25s ease, box-shadow 0.3s ease',
+              border: '1px solid',
+              borderTopColor:    isListening ? 'rgba(80,245,185,0.80)' : 'var(--bevel-hi-btn)',
+              borderLeftColor:   isListening ? 'rgba(60,225,160,0.55)' : 'var(--bevel-hi)',
+              borderBottomColor: isListening ? 'rgba(4,96,68,0.90)'    : 'var(--bevel-lo)',
+              borderRightColor:  isListening ? 'rgba(6,120,80,0.68)'   : 'rgba(0,0,0,0.42)',
+              boxShadow: isListening ? 'var(--btn-green-shadow)' : 'var(--btn-shadow)',
+              transition: 'background 0.3s ease, color 0.25s ease, box-shadow 0.3s ease, border-color 0.3s ease',
             }}
             aria-label={isListening ? 'Stop recording' : 'Start recording'}
           >
@@ -167,7 +167,7 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
             </motion.p>
           </AnimatePresence>
 
-          {/* Interim transcript or hint label */}
+          {/* Interim transcript or hint */}
           <AnimatePresence mode="wait">
             {isListening && interim ? (
               <motion.div
@@ -175,7 +175,7 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{    opacity: 0       }}
-                className="neu-inset-sm"
+                className="skeu-inset-sm"
                 style={{ borderRadius: 8, padding: '4px 10px' }}
               >
                 <p style={{

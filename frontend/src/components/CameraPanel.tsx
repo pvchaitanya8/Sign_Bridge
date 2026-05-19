@@ -32,8 +32,8 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
 
       {/* ── Header ─────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-        {/* Glass section label */}
-        <div className="glass-pill" style={{
+        {/* Section label chip */}
+        <div className="skeu-chip" style={{
           display: 'flex', alignItems: 'center', gap: 6,
           padding: '5px 12px',
         }}>
@@ -44,11 +44,17 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
           }}>Camera Feed</span>
         </div>
 
-        {/* Status chip — glass pill */}
+        {/* Status chip */}
         <motion.div
-          className="glass-pill"
+          className="skeu-chip"
           style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 14px' }}
-          animate={status === 'connected' ? { boxShadow: ['0 2px 12px rgba(0,0,0,0.12)', '0 2px 20px rgba(52,211,153,0.18)', '0 2px 12px rgba(0,0,0,0.12)'] } : {}}
+          animate={status === 'connected'
+            ? { boxShadow: [
+                'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 5px rgba(0,0,0,0.40)',
+                'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 5px rgba(0,0,0,0.40), 0 0 14px rgba(52,211,153,0.22)',
+                'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 5px rgba(0,0,0,0.40)',
+              ] }
+            : {}}
           transition={{ duration: 2, repeat: Infinity }}
         >
           <span className={cn('led', led)} />
@@ -60,8 +66,8 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
         </motion.div>
       </div>
 
-      {/* ── Viewport (inset = embedded screen) ─────────── */}
-      <div className="med-display" style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden' }}>
+      {/* ── Viewport — professional monitor bezel ──────── */}
+      <div className="skeu-display" style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden' }}>
         <canvas ref={canvasRef} width={640} height={480} style={{ display: 'none' }} />
 
         {/* Live feed */}
@@ -83,7 +89,7 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             gap: 20,
           }}>
-            <div className="neu" style={{
+            <div className="skeu-raised" style={{
               width: 72, height: 72, borderRadius: 22,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
@@ -105,7 +111,7 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
           </div>
         )}
 
-        {/* ── Prediction overlay ───────────────────────── */}
+        {/* ── Prediction overlay — physical HUD panel ──── */}
         <AnimatePresence>
           {isStreaming && prediction && (
             <motion.div
@@ -117,14 +123,20 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
               style={{ position: 'absolute', bottom: 14, left: 12, right: 12 }}
             >
               <div style={{
-                background: 'rgba(var(--base-rgb, 45 45 45) / 0.82)',
-                backdropFilter: 'blur(14px)',
-                WebkitBackdropFilter: 'blur(14px)',
-                border: '1px solid var(--green-border)',
-                borderRadius: 20,
+                background: 'var(--overlay-bg)',
+                border: '1px solid',
+                borderTopColor: 'rgba(52,211,153,0.45)',
+                borderLeftColor: 'rgba(52,211,153,0.28)',
+                borderBottomColor: 'rgba(0,0,0,0.65)',
+                borderRightColor: 'rgba(0,0,0,0.45)',
+                borderRadius: 16,
                 padding: '14px 18px',
                 display: 'flex', alignItems: 'center', gap: 18,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.28), 0 0 0 1px var(--green-border), 0 4px 20px var(--green-glow2)',
+                boxShadow:
+                  'inset 0 1px 0 rgba(52,211,153,0.12),' +
+                  '0 8px 28px rgba(0,0,0,0.65),' +
+                  '0 3px 8px rgba(0,0,0,0.55),' +
+                  '0 0 0 1px rgba(52,211,153,0.12)',
               }}>
                 {/* Animated letter tile */}
                 <AnimatePresence mode="wait">
@@ -135,11 +147,18 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
                     exit={{    rotateY:  90, scale: 0.55, opacity: 0 }}
                     transition={{ duration: 0.2, ease: 'easeOut' }}
                     style={{
-                      width: 70, height: 70, borderRadius: 18, flexShrink: 0,
+                      width: 70, height: 70, borderRadius: 14, flexShrink: 0,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      background: 'linear-gradient(135deg, var(--green-dim) 0%, rgba(52,211,153,0.08) 100%)',
-                      border: '1px solid var(--green-border)',
-                      boxShadow: '0 0 20px var(--green-glow), inset 0 1px 0 rgba(255,255,255,0.06)',
+                      background: 'linear-gradient(175deg, var(--srf-raise-hi) 0%, var(--base) 55%, var(--srf-raise-lo) 100%)',
+                      border: '1px solid',
+                      borderTopColor: 'rgba(52,211,153,0.38)',
+                      borderLeftColor: 'rgba(52,211,153,0.22)',
+                      borderBottomColor: 'var(--bevel-lo)',
+                      borderRightColor: 'rgba(0,0,0,0.40)',
+                      boxShadow:
+                        'inset 0 1px 0 rgba(52,211,153,0.18),' +
+                        '0 4px 12px rgba(0,0,0,0.55),' +
+                        '0 0 18px var(--green-glow2)',
                     }}
                   >
                     <span className="mono" style={{
@@ -199,7 +218,7 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
           )}
         </AnimatePresence>
 
-        {/* No hand hint — slim translucent bar */}
+        {/* No hand hint */}
         <AnimatePresence>
           {isStreaming && !prediction && (
             <motion.div
@@ -211,15 +230,18 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
               style={{ position: 'absolute', bottom: 14, left: 12, right: 12 }}
             >
               <div style={{
-                background: 'rgba(0,0,0,0.38)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(0,0,0,0.55)',
+                border: '1px solid',
+                borderTopColor: 'rgba(255,255,255,0.08)',
+                borderBottomColor: 'rgba(0,0,0,0.70)',
+                borderLeftColor: 'rgba(255,255,255,0.05)',
+                borderRightColor: 'rgba(0,0,0,0.50)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 3px 8px rgba(0,0,0,0.50)',
                 borderRadius: 10, padding: '7px 16px', textAlign: 'center',
               }}>
                 <span style={{
                   fontSize: '0.61rem', fontWeight: 700, letterSpacing: '0.12em',
-                  textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)',
+                  textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)',
                 }}>
                   ✋ Show your hand to the camera
                 </span>
@@ -234,7 +256,7 @@ export function CameraPanel({ sendFrame, prediction, status }: CameraPanelProps)
         whileHover={{ scale: 1.02 }}
         whileTap={{   scale: 0.97 }}
         onClick={isStreaming ? stopCamera : startCamera}
-        className="neu-btn"
+        className="skeu-btn"
         style={{
           flexShrink: 0,
           width: '100%', height: 46,
