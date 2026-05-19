@@ -504,7 +504,7 @@ const JPEG_QUALITY = 0.65  // 0.0–1.0  (lower = smaller payload, faster)
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+Apache-2.0 license — see [LICENSE](./LICENSE).
 
 ---
 
