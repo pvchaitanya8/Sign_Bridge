@@ -21,19 +21,33 @@ A hearing person **speaks back** → their words appear as text for the signer t
 
 ## How It Works
 
-```
-Signer                         SignBridge                      Listener
-  │                               │                               │
-  │── ASL gesture ──────────────►│                               │
-  │                    MediaPipe extracts                         │
-  │                    21 hand landmarks (63 floats)              │
-  │                    Random Forest predicts letter              │
-  │                    WebSocket streams result back              │
-  │◄────────── Letter overlay + hold-ring progress ──────────────│
-  │  (hold the sign 1.5 s → letter confirmed → sentence builds)  │
-  │── "Speak & Send" ──────────►│──── Text-to-Speech ──────────►│
-  │                               │                               │
-  │◄───────── Text transcript ────│◄────── Speech-to-Text ───────│
+```mermaid
+sequenceDiagram
+    actor S as 🤟 Signer
+    participant B as Browser
+    participant WS as WebSocket
+    participant MP as MediaPipe Hands
+    participant RF as Random Forest
+    participant UI as Sentence Builder
+    actor L as 👂 Listener
+
+    Note over S,L: ── ASL → Speech  (Signer to Listener) ──────────────────────
+
+    S->>B: Show ASL sign to webcam
+    B->>WS: JPEG frame (binary · 15 fps)
+    WS->>MP: Raw frame bytes
+    MP->>MP: Extract 21 hand landmarks (63 floats · wrist-normalised)
+    MP->>RF: Landmark feature vector
+    RF-->>WS: Predicted letter + confidence (0 – 1)
+    WS-->>UI: Prediction JSON
+    UI->>UI: Hold-ring fills over 1.5 s → letter confirmed → sentence grows
+    UI->>L: Speak & Send → speechSynthesis reads sentence aloud
+
+    Note over S,L: ── Speech → Text  (Listener to Signer) ──────────────────────
+
+    L->>B: Speaks into microphone
+    B->>B: Web Speech API — continuous SpeechRecognition
+    B-->>S: Transcript appears in conversation feed
 ```
 
 ---
