@@ -1,884 +1,938 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════
-   SIGNBRIDGE — Classic Skeuomorphic Design System  v4.1
-   Real materials · beveled edges · physical 3-D depth
-
-   DARK  : Deep navy-charcoal anodized panel
-   LIGHT : Warm brushed silver aluminum instrument panel
-
-   Rule: Inset areas (screens, troughs) are ALWAYS dark in
-   both themes — like real LCD/CRT displays recessed into metal.
+   SIGNBRIDGE — Industrial Design System  v5.1
+   Inspired by Teenage Engineering hardware.
+   Flat matte surfaces · raised panels · monospace HUDs ·
+   signal-red accent · short utilitarian motion.
 ═══════════════════════════════════════════════════════════ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ══════════════════════════════════════════════════════════
-   DARK THEME — deep navy-charcoal anodized aluminum
+   DARK THEME (default) — anodized matte black
 ══════════════════════════════════════════════════════════ */
 :root {
   color-scheme: dark;
 
-  /* ── Accent palette ──────────────────────────────────── */
-  --green:        #2eeba0;
-  --green-mid:    #14c87a;
-  --green-deep:   #0a8c58;
-  --green-dim:    rgba(46, 235, 160, 0.14);
-  --green-glow:   rgba(46, 235, 160, 0.35);
-  --green-glow2:  rgba(46, 235, 160, 0.16);
-  --green-border: rgba(46, 235, 160, 0.30);
+  /* Surfaces — flat fills, panels sit above page */
+  --paper:        #0E0E10;
+  --surface:      #1A1A1C;
+  --surface-2:    #232326;
+  --surface-3:    #2D2D30;
+  --surface-bar:  #0A0A0C;
+  --inset:        #060608;
 
-  --blue:         #6eb4ff;
-  --blue-mid:     #3b82f6;
-  --blue-glow:    rgba(110, 180, 255, 0.24);
-  --blue-glow2:   rgba(110, 180, 255, 0.10);
+  /* Ink (foreground) */
+  --ink:         #ECEBE5;
+  --ink-2:       #A8A89F;
+  --ink-3:       #6B6B65;
+  --ink-4:       #4A4A46;
 
-  --amber:        #ffc340;
-  --red:          #ff7070;
-  --red-glow:     rgba(255, 112, 112, 0.26);
-  --red-border:   rgba(255, 112, 112, 0.24);
+  /* Hairlines */
+  --line:        rgba(232, 231, 226, 0.12);
+  --line-2:      rgba(232, 231, 226, 0.22);
+  --line-top:    rgba(232, 231, 226, 0.06);
 
-  /* ── Surface base (deep navy-charcoal) ───────────────── */
-  --base:         #1e1e2c;
-  --base-deep:    #16161f;
+  /* Signal red accent */
+  --accent:      #FF4D5C;
+  --accent-2:    #E63946;
+  --accent-soft: rgba(255, 77, 92, 0.12);
+  --accent-line: rgba(255, 77, 92, 0.42);
 
-  /* ── Text ────────────────────────────────────────────── */
-  --text-primary:   #e6e6f0;
-  --text-secondary: #9090a8;
-  --text-muted:     #484860;
+  /* Functional status */
+  --ok:          #54C57F;
+  --warn:        #E8A53A;
 
-  /* ── Raised surface colors ───────────────────────────── */
-  --srf-raise-hi:  #2c2c3e;
-  --srf-raise-lo:  #161620;
+  /* Shadow — single soft elevation for panels */
+  --shadow-panel:
+    0 1px 0 var(--line-top) inset,
+    0 18px 32px -16px rgba(0, 0, 0, 0.55),
+    0 4px 12px -4px rgba(0, 0, 0, 0.40);
 
-  /* ── Inset / screen colors — ALWAYS dark ────────────── */
-  --srf-inset-bg:  #080810;
-  --srf-inset-hi:  #0f0f1a;
+  --bar-ink: var(--ink);
+  --bar-bg:  var(--surface-bar);
+  --bar-fg:  var(--ink);
 
-  /* ── Text inside insets (always light) ───────────────── */
-  --text-on-inset:       rgba(220, 220, 238, 0.90);
-  --text-on-inset-dim:   rgba(160, 160, 185, 0.70);
-  --text-on-inset-muted: rgba(100, 100, 130, 0.65);
+  /* Text on inset screens — ALWAYS light (insets are always dark).
+     Not overridden by the light theme. */
+  --on-inset:      rgba(232, 232, 236, 0.94);
+  --on-inset-dim:  rgba(232, 232, 236, 0.55);
+  --on-inset-mute: rgba(232, 232, 236, 0.34);
+  --on-inset-line: rgba(232, 232, 236, 0.20);
 
-  /* ── Bevel tokens ────────────────────────────────────── */
-  --bevel-hi:      rgba(255, 255, 255, 0.14);
-  --bevel-lo:      rgba(0,   0,   0,   0.72);
-  --bevel-hi-btn:  rgba(255, 255, 255, 0.24);
+  /* Radii — small, instrument-grade */
+  --r-xs:    3px;
+  --r-sm:    5px;
+  --r-md:    7px;
+  --r-lg:   10px;
 
-  /* ── Button gradients ────────────────────────────────── */
-  --btn-grad:       linear-gradient(180deg, #2e2e42 0%, #252535 45%, #1e1e2c 100%);
-  --btn-grad-hover: linear-gradient(180deg, #363650 0%, #2d2d42 45%, #252535 100%);
-  --btn-grad-press: linear-gradient(180deg, #141420 0%, #1e1e2c 55%, #252535 100%);
-
-  --btn-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 4px 12px rgba(0, 0, 0, 0.58),
-    0 1px 3px  rgba(0, 0, 0, 0.68);
-
-  --btn-shadow-press:
-    inset 0 3px 8px  rgba(0, 0, 0, 0.82),
-    inset 0 1px 3px  rgba(0, 0, 0, 0.64),
-    0 1px 0          rgba(255, 255, 255, 0.04);
-
-  --btn-green-grad:
-    linear-gradient(180deg,
-      #52f8bc 0%, #2eeba0 18%, #1ccc84 48%,
-      #12b070 75%, #0a8858 100%);
-
-  --btn-green-shadow:
-    inset 0 1px 0  rgba(255, 255, 255, 0.32),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.26),
-    0 5px 20px rgba(46, 235, 160, 0.50),
-    0 2px 7px  rgba(0, 0, 0, 0.55);
-
-  --overlay-bg: rgba(8, 8, 18, 0.94);
-
-  --toggle-icon: '☀';
+  /* Skeuomorphic button surfaces — dark theme */
+  --btn-face-hi:   #3C3C42;
+  --btn-face-mid:  #2A2A2F;
+  --btn-face-lo:   #1C1C21;
+  --btn-edge-hi:   rgba(255, 255, 255, 0.18);
+  --btn-edge-side: rgba(255, 255, 255, 0.08);
+  --btn-edge-lo:   rgba(0, 0, 0, 0.55);
+  --btn-sheen:     rgba(255, 255, 255, 0.08);
+  --btn-drop:      rgba(0, 0, 0, 0.42);
 }
 
 /* ══════════════════════════════════════════════════════════
-   LIGHT THEME — warm brushed silver aluminum
+   LIGHT THEME — paper / aluminum (higher contrast)
 ══════════════════════════════════════════════════════════ */
 [data-theme="light"] {
   color-scheme: light;
 
-  --green:        #059669;
-  --green-mid:    #047857;
-  --green-deep:   #065f46;
-  --green-dim:    rgba(5, 150, 105, 0.12);
-  --green-glow:   rgba(5, 150, 105, 0.32);
-  --green-glow2:  rgba(5, 150, 105, 0.14);
-  --green-border: rgba(5, 150, 105, 0.38);
+  /* Studio aluminum — cool industrial gray. Panels read as
+     brushed-metal faceplates raised off a concrete substrate. */
+  --paper:        #B4B7BD;
+  --surface:      #E3E5E9;
+  --surface-2:    #D3D5DA;
+  --surface-3:    #C5C7CD;
+  --surface-bar:  #16181D;
+  /* Insets are ALWAYS dark — recessed LCD/OLED screens, like real hardware */
+  --inset:        #0E0F13;
 
-  --blue:         #1d4ed8;
-  --blue-mid:     #2563eb;
-  --blue-glow:    rgba(29, 78, 216, 0.22);
-  --blue-glow2:   rgba(29, 78, 216, 0.09);
+  --ink:          #14151A;
+  --ink-2:        #44464D;
+  --ink-3:        #76787F;
+  --ink-4:        #A4A6AD;
 
-  --amber:        #d97706;
-  --red:          #dc2626;
-  --red-glow:     rgba(220, 38, 38, 0.22);
-  --red-border:   rgba(220, 38, 38, 0.26);
+  --line:         rgba(16, 17, 22, 0.16);
+  --line-2:       rgba(16, 17, 22, 0.30);
+  --line-top:     rgba(255, 255, 255, 0.70);
 
-  /* ── Warm aluminum base ──────────────────────────────── */
-  --base:         #cbc9c0;
-  --base-deep:    #b5b3a8;
+  --accent:       #D72A38;
+  --accent-2:     #B01C28;
+  --accent-soft:  rgba(215, 42, 56, 0.12);
+  --accent-line:  rgba(215, 42, 56, 0.52);
 
-  /* ── Text ────────────────────────────────────────────── */
-  --text-primary:   #1a1a20;
-  --text-secondary: #48484e;
-  --text-muted:     #787888;
+  --ok:           #1E8C42;
+  --warn:         #B45309;
 
-  /* ── Raised surface colors ───────────────────────────── */
-  --srf-raise-hi:  #dddbd2;
-  --srf-raise-lo:  #b5b3a8;
+  /* Skeuomorphic button surfaces — aluminum light theme */
+  --btn-face-hi:   #F6F7F9;
+  --btn-face-mid:  #EAECEF;
+  --btn-face-lo:   #D4D6DB;
+  --btn-edge-hi:   rgba(255, 255, 255, 0.95);
+  --btn-edge-side: rgba(255, 255, 255, 0.62);
+  --btn-edge-lo:   rgba(0, 0, 0, 0.28);
+  --btn-sheen:     rgba(255, 255, 255, 0.76);
+  --btn-drop:      rgba(0, 0, 0, 0.18);
 
-  /* ── Inset / screen — ALWAYS dark (like real LCD panels) */
-  --srf-inset-bg:  #111118;
-  --srf-inset-hi:  #1c1c24;
+  --shadow-panel:
+    0 1px 0 rgba(255, 255, 255, 0.78) inset,
+    0 20px 38px -20px rgba(0, 0, 0, 0.30),
+    0 6px 14px -6px rgba(0, 0, 0, 0.18),
+    0 1px 2px rgba(0, 0, 0, 0.10);
 
-  /* ── Text inside insets (light on dark screen) ────────── */
-  --text-on-inset:       rgba(215, 215, 232, 0.92);
-  --text-on-inset-dim:   rgba(155, 155, 175, 0.75);
-  --text-on-inset-muted: rgba(100, 100, 125, 0.65);
-
-  /* ── Bevel tokens ────────────────────────────────────── */
-  --bevel-hi:      rgba(255, 255, 255, 0.90);
-  --bevel-lo:      rgba(0,   0,   0,   0.22);
-  --bevel-hi-btn:  rgba(255, 255, 255, 0.96);
-
-  /* ── Button gradients ────────────────────────────────── */
-  --btn-grad:       linear-gradient(180deg, #dddbd2 0%, #d1cfc6 45%, #c5c3ba 100%);
-  --btn-grad-hover: linear-gradient(180deg, #e5e3da 0%, #d9d7ce 45%, #cdcbc2 100%);
-  --btn-grad-press: linear-gradient(180deg, #b9b7ae 0%, #c1bfb6 55%, #c9c7be 100%);
-
-  --btn-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.88),
-    0 3px 8px rgba(0, 0, 0, 0.20),
-    0 1px 2px rgba(0, 0, 0, 0.16);
-
-  --btn-shadow-press:
-    inset 0 2px 6px rgba(0, 0, 0, 0.28),
-    inset 0 1px 2px rgba(0, 0, 0, 0.20),
-    0 1px 0     rgba(255, 255, 255, 0.72);
-
-  --btn-green-grad:
-    linear-gradient(180deg,
-      #4af0b0 0%, #26dc8c 20%, #12c070 50%,
-      #089858 75%, #067248 100%);
-
-  --btn-green-shadow:
-    inset 0 1px 0  rgba(255, 255, 255, 0.38),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.16),
-    0 4px 14px rgba(5, 150, 105, 0.45),
-    0 2px 5px  rgba(0, 0, 0, 0.24);
-
-  --overlay-bg: rgba(14, 14, 22, 0.88);
-
-  --toggle-icon: '🌙';
+  --bar-ink: #E3E5E9;
+  --bar-bg:  #16181D;
+  --bar-fg:  #E3E5E9;
 }
 
-/* ── Base styles ─────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════
+   BASE
+══════════════════════════════════════════════════════════ */
 html { min-height: 100vh; }
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
   -webkit-font-smoothing: antialiased;
-  color: var(--text-primary);
+  text-rendering: optimizeLegibility;
+  color: var(--ink);
   min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
-
-  /* Dark: deep navy with ambient teal/indigo glow orbs */
-  background-color: var(--base-deep);
+  background-color: var(--paper);
+  /* Subtle dot grid — instrument-panel texture */
   background-image:
-    radial-gradient(ellipse 60% 50% at 10% 10%,
-      rgba(46, 235, 160, 0.08) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 60% at 90% 90%,
-      rgba(110, 180, 255, 0.07) 0%, transparent 55%),
-    radial-gradient(ellipse 35% 25% at 50% 0%,
-      rgba(110, 100, 255, 0.04) 0%, transparent 50%),
-    repeating-linear-gradient(
-      93deg,
-      rgba(255,255,255,0) 0px, rgba(255,255,255,0) 4px,
-      rgba(255,255,255,0.007) 4px, rgba(255,255,255,0.007) 8px
-    ),
-    linear-gradient(170deg, #1e1e2c 0%, #16161f 60%, #101018 100%);
-}
-
-[data-theme="light"] body {
-  background-color: #b0aea4;
-  background-image:
-    radial-gradient(ellipse 60% 50% at 10% 10%,
-      rgba(5, 150, 105, 0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 60% at 90% 90%,
-      rgba(29, 78, 216, 0.05) 0%, transparent 55%),
-    repeating-linear-gradient(
-      93deg,
-      rgba(255,255,255,0) 0px, rgba(255,255,255,0) 3px,
-      rgba(255,255,255,0.40) 3px, rgba(255,255,255,0.40) 6px
-    ),
-    linear-gradient(170deg, #cbc9c0 0%, #bdbba8 60%, #adab98 100%);
+    radial-gradient(circle at 1px 1px,
+      var(--line-2) 0.7px, transparent 0.7px);
+  background-size: 18px 18px;
+  background-position: 0 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 #root { min-height: 100vh; }
 
-/* ── Scrollbar ─────────────────────────────────────────── */
-::-webkit-scrollbar       { width: 5px; }
-::-webkit-scrollbar-track {
-  background: var(--srf-inset-bg);
-  border-radius: 3px;
-}
+::selection { background: var(--accent-soft); color: var(--ink); }
+
+/* Scrollbar */
+::-webkit-scrollbar       { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.18);
-  border-radius: 3px;
+  background: var(--line-2);
+  border-radius: 0;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
 
-/* ═══════════════════════════════════════════════════════════
-   SKEUOMORPHIC SURFACE CLASSES
-═══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   TYPOGRAPHY UTILITIES
+══════════════════════════════════════════════════════════ */
+.mono {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-feature-settings: 'ss02', 'ss19', 'zero';
+}
 
-/* ── Main panel (outer cards) — thick metal faceplate ───── */
-.skeu-panel {
+.label {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  line-height: 1;
+}
+
+.label-ink    { color: var(--ink); }
+.label-ink-2  { color: var(--ink-2); }
+.label-accent { color: var(--accent); }
+
+/* HUD readout — monospace data on dark surfaces */
+.hud {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  color: rgba(236, 235, 229, 0.78);
+  text-transform: uppercase;
+}
+
+/* Larger display monospace — for clock-style readouts */
+.readout {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SURFACES — panels are raised faceplates above the page
+══════════════════════════════════════════════════════════ */
+
+.panel {
   position: relative;
-  background:
-    repeating-linear-gradient(
-      92deg,
-      rgba(255,255,255,0) 0px, rgba(255,255,255,0) 3px,
-      rgba(255,255,255,0.010) 3px, rgba(255,255,255,0.010) 6px
-    ),
-    linear-gradient(168deg, var(--srf-raise-hi) 0%, var(--base) 55%, var(--srf-raise-lo) 100%);
-  border: 1px solid;
-  border-top-color:    var(--bevel-hi);
-  border-left-color:   var(--bevel-hi);
-  border-bottom-color: var(--bevel-lo);
-  border-right-color:  rgba(0, 0, 0, 0.40);
-  box-shadow:
-    inset 0 1px 0 var(--bevel-hi),
-    0 20px 56px rgba(0, 0, 0, 0.55),
-    0  7px 18px rgba(0, 0, 0, 0.40),
-    0  2px  4px rgba(0, 0, 0, 0.34);
-  border-radius: 20px;
-  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--surface) 94%, white) 0%,
+    var(--surface) 46%,
+    color-mix(in srgb, var(--surface) 95%, black) 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
-/* Curved gloss reflection — top of panel catches overhead light */
-.skeu-panel::before {
+
+/* Subtle brushed striations on faceplates */
+.panel::after {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 42%;
-  background: linear-gradient(180deg,
-    rgba(255,255,255,0.072) 0%,
-    rgba(255,255,255,0.028) 55%,
-    transparent 100%);
-  border-radius: 19px 19px 0 0;
+  inset: 0;
   pointer-events: none;
-  z-index: 0;
-}
-[data-theme="light"] .skeu-panel::before {
-  background: linear-gradient(180deg,
-    rgba(255,255,255,0.72) 0%,
-    rgba(255,255,255,0.28) 55%,
-    transparent 100%);
-}
-[data-theme="light"] .skeu-panel {
-  box-shadow:
-    inset 0 1px 0 var(--bevel-hi),
-    0 12px 36px rgba(0, 0, 0, 0.22),
-    0  4px 12px rgba(0, 0, 0, 0.16),
-    0  1px  3px rgba(0, 0, 0, 0.14);
-}
-
-/* ── Small raised surface (discs, icon boxes) ───────────── */
-.skeu-raised {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(175deg, var(--srf-raise-hi) 0%, var(--base) 55%, var(--srf-raise-lo) 100%);
-  border: 1px solid;
-  border-top-color:    var(--bevel-hi);
-  border-left-color:   var(--bevel-hi);
-  border-bottom-color: var(--bevel-lo);
-  border-right-color:  rgba(0, 0, 0, 0.40);
-  box-shadow:
-    inset 0 1px 0 var(--bevel-hi),
-    0 8px 22px rgba(0, 0, 0, 0.50),
-    0 3px  9px rgba(0, 0, 0, 0.40),
-    0 1px  2px rgba(0, 0, 0, 0.36);
-  border-radius: 14px;
-  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-}
-.skeu-raised::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 52%;
-  background: linear-gradient(180deg,
-    rgba(255,255,255,0.10) 0%,
-    transparent 100%);
-  pointer-events: none;
-}
-[data-theme="light"] .skeu-raised::before {
-  background: linear-gradient(180deg,
-    rgba(255,255,255,0.80) 0%,
-    rgba(255,255,255,0.10) 60%,
-    transparent 100%);
-}
-[data-theme="light"] .skeu-raised {
-  box-shadow:
-    inset 0 1px 0 var(--bevel-hi),
-    0 6px 16px rgba(0, 0, 0, 0.18),
-    0 2px  6px rgba(0, 0, 0, 0.13),
-    0 1px  2px rgba(0, 0, 0, 0.10);
-}
-
-/* ── Inset trough — large (always dark, like a real screen) ─ */
-.skeu-inset-lg {
-  background: linear-gradient(170deg, var(--srf-inset-bg) 0%, var(--srf-inset-hi) 100%);
-  border: 1px solid;
-  border-top-color:    rgba(0, 0, 0, 0.82);
-  border-left-color:   rgba(0, 0, 0, 0.62);
-  border-bottom-color: rgba(255, 255, 255, 0.07);
-  border-right-color:  rgba(255, 255, 255, 0.05);
-  box-shadow:
-    inset 0 5px 18px rgba(0, 0, 0, 0.92),
-    inset 0 2px  7px rgba(0, 0, 0, 0.75),
-    inset 0 0    0  1px rgba(0, 0, 0, 0.44),
-    0 1px 0 rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
-  transition: background 0.3s ease;
-  /* Inherit for all child text */
-  color: var(--text-on-inset);
-}
-
-/* ── Inset trough — small ───────────────────────────────── */
-.skeu-inset-sm {
-  background: linear-gradient(170deg, var(--srf-inset-bg) 0%, var(--srf-inset-hi) 100%);
-  border: 1px solid;
-  border-top-color:    rgba(0, 0, 0, 0.78);
-  border-left-color:   rgba(0, 0, 0, 0.58);
-  border-bottom-color: rgba(255, 255, 255, 0.07);
-  border-right-color:  rgba(255, 255, 255, 0.05);
-  box-shadow:
-    inset 0 3px 10px rgba(0, 0, 0, 0.82),
-    inset 0 1px  5px rgba(0, 0, 0, 0.64),
-    0 1px 0 rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  transition: background 0.3s ease;
-  color: var(--text-on-inset);
-}
-
-/* Override .label inside any inset — needs to stay light */
-.skeu-inset-lg .label,
-.skeu-inset-sm .label {
-  color: var(--text-on-inset-muted);
-  text-shadow: none;
-}
-
-/* ── Camera / display viewport ──────────────────────────── */
-.skeu-display {
-  background: #020205;
-  border: 2px solid;
-  border-top-color:    rgba(0, 0, 0, 0.94);
-  border-left-color:   rgba(0, 0, 0, 0.80);
-  border-bottom-color: rgba(255, 255, 255, 0.09);
-  border-right-color:  rgba(255, 255, 255, 0.07);
-  box-shadow:
-    inset 0 0   0 1px rgba(0, 0, 0, 0.58),
-    inset 0 5px 26px  rgba(0, 0, 0, 0.96),
-    0 2px 0 rgba(255, 255, 255, 0.06),
-    0 8px 24px rgba(0, 0, 0, 0.55);
-  border-radius: 12px;
-  transition: background 0.3s ease;
-}
-[data-theme="light"] .skeu-display {
-  background: #585864;
-  border-top-color:    rgba(0, 0, 0, 0.56);
-  border-left-color:   rgba(0, 0, 0, 0.42);
-  border-bottom-color: rgba(255, 255, 255, 0.60);
-  border-right-color:  rgba(255, 255, 255, 0.48);
-  box-shadow:
-    inset 0 4px 16px rgba(0, 0, 0, 0.55),
-    inset 0 1px  5px rgba(0, 0, 0, 0.36),
-    0 2px 0 rgba(255, 255, 255, 0.64),
-    0 5px 16px rgba(0, 0, 0, 0.22);
-}
-
-/* ── Navigation bar ──────────────────────────────────────── */
-.skeu-nav {
-  position: relative;
-  overflow: hidden;
-  background:
+  background-image:
     repeating-linear-gradient(
       90deg,
-      rgba(255,255,255,0) 0px, rgba(255,255,255,0) 4px,
-      rgba(255,255,255,0.008) 4px, rgba(255,255,255,0.008) 8px
-    ),
-    linear-gradient(180deg, var(--srf-raise-hi) 0%, var(--base) 100%);
-  border: 1px solid;
-  border-top-color:    var(--bevel-hi);
-  border-left-color:   var(--bevel-hi);
-  border-bottom-color: var(--bevel-lo);
-  border-right-color:  rgba(0, 0, 0, 0.34);
-  box-shadow:
-    inset 0 1px 0 var(--bevel-hi),
-    0 10px 30px rgba(0, 0, 0, 0.55),
-    0  3px  8px rgba(0, 0, 0, 0.42);
-  transition: background 0.3s ease, border-color 0.3s ease;
+      transparent 0,
+      transparent 3px,
+      rgba(0, 0, 0, 0.012) 3px,
+      rgba(0, 0, 0, 0.012) 4px
+    );
 }
-.skeu-nav::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 44%;
-  background: linear-gradient(180deg,
-    rgba(255,255,255,0.09) 0%,
-    rgba(255,255,255,0.02) 65%,
-    transparent 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-[data-theme="light"] .skeu-nav::before {
-  background: linear-gradient(180deg,
-    rgba(255,255,255,0.68) 0%,
-    rgba(255,255,255,0.16) 60%,
-    transparent 100%);
-}
-[data-theme="light"] .skeu-nav {
-  box-shadow:
-    inset 0 1px 0 var(--bevel-hi),
-    0 6px 18px rgba(0, 0, 0, 0.18),
-    0 2px  5px rgba(0, 0, 0, 0.13);
+:root .panel::after {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 3px,
+      rgba(255, 255, 255, 0.012) 3px,
+      rgba(255, 255, 255, 0.012) 4px
+    );
 }
 
-/* ── Chip / section label ────────────────────────────────── */
-.skeu-chip {
+/* Recessed inset — always a dark screen, like a real LCD/OLED
+   panel set into the faceplate. Same treatment in both themes. */
+.panel-inset {
+  background: var(--inset);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.30);
+}
+/* In light mode the bright panel rims the dark screen with a 1px highlight */
+[data-theme="light"] .panel-inset {
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.55),
+    0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* Section bar — high-contrast title plate on each module */
+.bar {
   position: relative;
-  overflow: hidden;
-  background: linear-gradient(180deg, var(--srf-raise-hi) 0%, var(--base) 100%);
-  border: 1px solid;
-  border-top-color:    var(--bevel-hi);
-  border-left-color:   var(--bevel-hi);
-  border-bottom-color: var(--bevel-lo);
-  border-right-color:  rgba(0, 0, 0, 0.34);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.09),
-    0 2px 6px rgba(0, 0, 0, 0.44),
-    0 1px 2px rgba(0, 0, 0, 0.38);
-  border-radius: 99px;
-  transition: background 0.3s ease, border-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  padding: 0 16px;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0) 60%),
+    var(--bar-bg);
+  color: var(--bar-fg);
+  border-bottom: 1px solid var(--line);
+  font-family: 'JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.20);
 }
-.skeu-chip::before {
+/* Glass sheen on bars */
+.bar::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 55%;
-  background: linear-gradient(180deg,
-    rgba(255,255,255,0.11) 0%,
-    transparent 100%);
-  border-radius: 99px;
+  inset: 0;
   pointer-events: none;
-}
-[data-theme="light"] .skeu-chip::before {
   background: linear-gradient(180deg,
-    rgba(255,255,255,0.85) 0%,
-    rgba(255,255,255,0.12) 60%,
-    transparent 100%);
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0) 50%);
 }
-[data-theme="light"] .skeu-chip {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.82),
-    0 1px 4px rgba(0, 0, 0, 0.16),
-    0 1px 1px rgba(0, 0, 0, 0.12);
+.bar-tall { height: 44px; }
+.bar-light {
+  background: var(--surface-2);
+  color: var(--ink);
 }
 
-/* ── Message bubbles ─────────────────────────────────────── */
-.skeu-bubble-signer {
-  background: linear-gradient(145deg, rgba(10, 38, 26, 0.97) 0%, rgba(6, 22, 14, 0.94) 100%);
-  border: 1px solid rgba(46, 235, 160, 0.20);
-  border-top-color:  rgba(46, 235, 160, 0.36);
-  border-left: 3px solid var(--green);
-  border-radius: 14px;
-  box-shadow:
-    inset 0 1px 0 rgba(46, 235, 160, 0.10),
-    0 4px 12px rgba(0, 0, 0, 0.52),
-    0 1px  3px rgba(0, 0, 0, 0.40);
-}
-[data-theme="light"] .skeu-bubble-signer {
-  background: linear-gradient(145deg, rgba(5, 46, 22, 0.10) 0%, rgba(4, 30, 14, 0.07) 100%);
-  border-color:     rgba(5, 150, 105, 0.26);
-  border-top-color: rgba(5, 150, 105, 0.42);
-  border-left: 3px solid var(--green);
-  box-shadow:
-    inset 0 1px 0 rgba(5, 150, 105, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.16),
-    0 1px 2px rgba(0, 0, 0, 0.12);
+.bar .bar-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
-.skeu-bubble-listener {
-  background: linear-gradient(145deg, rgba(8, 20, 48, 0.97) 0%, rgba(4, 12, 32, 0.94) 100%);
-  border: 1px solid rgba(110, 180, 255, 0.18);
-  border-top-color:  rgba(110, 180, 255, 0.30);
-  border-right: 3px solid var(--blue);
-  border-radius: 14px;
-  box-shadow:
-    inset 0 1px 0 rgba(110, 180, 255, 0.10),
-    0 4px 12px rgba(0, 0, 0, 0.52),
-    0 1px  3px rgba(0, 0, 0, 0.40);
+.bar-divider {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 6px 0;
 }
-[data-theme="light"] .skeu-bubble-listener {
-  background: linear-gradient(145deg, rgba(8, 20, 80, 0.09) 0%, rgba(4, 12, 50, 0.06) 100%);
-  border-color:      rgba(29, 78, 216, 0.22);
-  border-top-color:  rgba(29, 78, 216, 0.36);
-  border-right: 3px solid var(--blue);
+[data-theme="light"] .bar-divider { background: rgba(255, 255, 255, 0.12); }
+
+/* Hairlines */
+.hairline {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+}
+.hairline-strong { background: var(--line-2); }
+
+.hairline-v {
+  width: 1px;
+  background: var(--line);
+  align-self: stretch;
+}
+
+/* ══════════════════════════════════════════════════════════
+   CHIPS
+══════════════════════════════════════════════════════════ */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xs);
+  font-family: 'JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.chip-ghost { background: transparent; }
+
+.chip-on-dark {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(236, 235, 229, 0.92);
+}
+
+.chip-accent {
+  color: var(--accent);
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.chip-ok {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 36%, transparent);
+  background: color-mix(in srgb, var(--ok) 10%, transparent);
+}
+
+/* ══════════════════════════════════════════════════════════
+   BUTTONS — Classic skeuomorphic
+   Layered gradient fills · beveled edges · hemisphere gloss
+   overlay · physical press states that feel like real hw.
+══════════════════════════════════════════════════════════ */
+
+.btn {
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  position: relative;
+  overflow: hidden;          /* clip the ::before gloss to border-radius */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  height: 42px;
+
+  /* ── Three-stop gradient fill — light top → mid → dark base ── */
+  background: linear-gradient(180deg,
+    var(--btn-face-hi)  0%,
+    var(--btn-face-mid) 52%,
+    var(--btn-face-lo)  100%);
+
+  /* ── Bevel: bright top-left rim, dark bottom-right rim ── */
+  border-style: solid;
+  border-width: 1px;
+  border-top-color:    var(--btn-edge-hi);
+  border-left-color:   var(--btn-edge-side);
+  border-right-color:  color-mix(in srgb, var(--btn-edge-lo) 58%, transparent);
+  border-bottom-color: var(--btn-edge-lo);
+  border-radius: var(--r-sm);
+
+  font-family: 'JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+
+  /* ── Inner top sheen + drop shadow ── */
   box-shadow:
-    inset 0 1px 0 rgba(29, 78, 216, 0.10),
-    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1.5px 0 var(--btn-sheen),
+    0 3px 7px var(--btn-drop),
     0 1px 2px rgba(0, 0, 0, 0.10);
+
+  transition:
+    background 220ms var(--ease),
+    color 220ms var(--ease),
+    border-color 220ms var(--ease),
+    box-shadow 220ms var(--ease),
+    transform 220ms var(--ease);
+  will-change: transform;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   BUTTONS
-═══════════════════════════════════════════════════════════ */
-
-.skeu-btn {
-  position: relative;
-  overflow: hidden;
-  background: var(--btn-grad);
-  border: 1px solid;
-  border-top-color:    var(--bevel-hi-btn);
-  border-left-color:   var(--bevel-hi);
-  border-bottom-color: var(--bevel-lo);
-  border-right-color:  rgba(0, 0, 0, 0.44);
-  box-shadow: var(--btn-shadow);
-  border-radius: 11px;
-  cursor: pointer;
-  color: var(--text-secondary);
-  outline: none;
-  transition: background 0.10s ease, color 0.14s ease, box-shadow 0.10s ease, transform 0.08s ease;
-}
-.skeu-btn::before {
+/* Top-half gloss — the polished-surface sheen */
+.btn::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 52%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.13) 0%, transparent 100%);
-  border-radius: 10px 10px 0 0;
+  height: 50%;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  background: linear-gradient(180deg,
+    var(--btn-sheen) 0%,
+    rgba(255, 255, 255, 0) 100%);
   pointer-events: none;
 }
-[data-theme="light"] .skeu-btn::before {
-  background: linear-gradient(180deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.08) 65%, transparent 100%);
-}
-.skeu-btn:not(:disabled):hover  {
-  background: var(--btn-grad-hover);
-  color: var(--text-primary);
-}
-.skeu-btn:not(:disabled):active {
-  background: var(--btn-grad-press);
-  box-shadow: var(--btn-shadow-press);
-  transform: translateY(1px);
-}
-.skeu-btn:disabled { cursor: not-allowed; opacity: 0.35; }
 
-/* ── Green primary CTA ───────────────────────────────────── */
-.skeu-btn-primary {
-  position: relative;
-  overflow: hidden;
-  background: var(--btn-green-grad);
-  border: 1px solid;
-  border-top-color:    rgba(92, 255, 198, 0.82);
-  border-left-color:   rgba(68, 240, 172, 0.62);
-  border-bottom-color: rgba(4, 96, 60, 0.92);
-  border-right-color:  rgba(6, 120, 76, 0.72);
-  box-shadow: var(--btn-green-shadow);
-  border-radius: 11px;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.38);
-  cursor: pointer;
-  outline: none;
-  font-weight: 800;
-  transition: filter 0.14s ease, box-shadow 0.14s ease, transform 0.08s ease;
-}
-.skeu-btn-primary::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 46%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.26) 0%, transparent 100%);
-  border-radius: 10px 10px 0 0;
-  pointer-events: none;
-}
-.skeu-btn-primary:not(:disabled):hover  { filter: brightness(1.09); }
-.skeu-btn-primary:not(:disabled):active {
-  filter: brightness(0.90);
+.btn:hover:not(:disabled) {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--btn-face-hi)  94%, white) 0%,
+    color-mix(in srgb, var(--btn-face-mid) 95%, white) 52%,
+    var(--btn-face-lo) 100%);
+  transform: translateY(-1px);
   box-shadow:
-    inset 0 3px 8px rgba(0, 0, 0, 0.36),
-    0 2px 8px rgba(46, 235, 160, 0.30);
-  transform: translateY(1px);
-}
-.skeu-btn-primary:disabled {
-  background:          var(--btn-grad);
-  border-top-color:    var(--bevel-hi-btn);
-  border-left-color:   var(--bevel-hi);
-  border-bottom-color: var(--bevel-lo);
-  border-right-color:  rgba(0, 0, 0, 0.44);
-  box-shadow:          var(--btn-shadow);
-  color:               var(--text-muted);
-  text-shadow:         none;
-  cursor:              not-allowed;
+    inset 0 1.5px 0 var(--btn-sheen),
+    0 6px 16px var(--btn-drop),
+    0 2px 5px rgba(0, 0, 0, 0.10);
 }
 
-/* ── Circular theme toggle ───────────────────────────────── */
-.skeu-toggle {
+/* Physical press: flip gradient + sink 1px + inset shadow */
+.btn:active:not(:disabled) {
+  background: linear-gradient(180deg,
+    var(--btn-face-lo)  0%,
+    var(--btn-face-mid) 50%,
+    var(--btn-face-hi)  100%);
+  border-top-color:    var(--btn-edge-lo);
+  border-bottom-color: var(--btn-edge-hi);
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.22),
+    inset 0 1px 2px rgba(0, 0, 0, 0.14),
+    0 1px 1px rgba(0, 0, 0, 0.06);
+  transition-duration: 60ms;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  transform: none;
+  background: var(--surface-2);
+  border-color: var(--line-2);
+  color: var(--ink-3);
+  box-shadow: none;
+}
+.btn:disabled::before { display: none; }
+
+.btn:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow:
+    inset 0 1.5px 0 var(--btn-sheen),
+    0 0 0 4px var(--accent-soft);
+}
+
+/* ── Primary CTA — skeuomorphic signal-red ── */
+.btn-primary {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--accent) 78%, white)  0%,
+    var(--accent)                                  50%,
+    var(--accent-2)                               100%);
+  border-top-color:    color-mix(in srgb, var(--accent) 52%, white);
+  border-left-color:   color-mix(in srgb, var(--accent) 68%, white);
+  border-right-color:  color-mix(in srgb, var(--accent-2) 80%, black);
+  border-bottom-color: color-mix(in srgb, var(--accent-2) 84%, black);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.32);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.52),
+    inset 1px 0 1px rgba(255, 255, 255, 0.20),
+    inset 0 -10px 18px -14px rgba(0, 0, 0, 0.60),
+    0 4px 14px -2px color-mix(in srgb, var(--accent) 44%, transparent),
+    0 2px 5px rgba(0, 0, 0, 0.22),
+    0 1px 2px rgba(0, 0, 0, 0.14);
+}
+/* Diagonal specular sheen — more sweeping on the red CTA */
+.btn-primary::before {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(154deg,
+    rgba(255, 255, 255, 0.44) 0%,
+    rgba(255, 255, 255, 0.14) 26%,
+    rgba(255, 255, 255, 0)    50%);
+}
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--accent) 72%, white)  0%,
+    var(--accent)                                  46%,
+    var(--accent-2)                               100%);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.58),
+    inset 1px 0 1px rgba(255, 255, 255, 0.24),
+    inset 0 -10px 18px -14px rgba(0, 0, 0, 0.60),
+    0 10px 28px -4px color-mix(in srgb, var(--accent) 50%, transparent),
+    0 4px 10px rgba(0, 0, 0, 0.18);
+}
+.btn-primary:active:not(:disabled) {
+  background: linear-gradient(180deg,
+    var(--accent-2)                               0%,
+    var(--accent)                                50%,
+    color-mix(in srgb, var(--accent) 78%, white) 100%);
+  border-top-color:    color-mix(in srgb, var(--accent-2) 80%, black);
+  border-bottom-color: color-mix(in srgb, var(--accent)   52%, white);
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2.5px 7px rgba(0, 0, 0, 0.30),
+    inset 0 1px 2px rgba(0, 0, 0, 0.20),
+    0 1px 3px rgba(0, 0, 0, 0.12);
+  filter: none;
+}
+.btn-primary:disabled {
+  background: var(--surface-2);
+  border-color: var(--line-2);
+  color: var(--ink-3);
+  text-shadow: none;
+  box-shadow: none;
+}
+.btn-primary:disabled::before { display: none; }
+.btn-primary:focus-visible {
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.52),
+    0 0 0 4px var(--accent-soft);
+}
+
+/* Icon-only square button */
+.btn-icon {
+  width: 42px;
+  padding: 0;
+}
+
+/* Small 32px button */
+.btn-sm {
+  height: 32px;
+  width: 32px;
+  padding: 0;
+  font-size: 10px;
+}
+
+/* Accent state */
+.btn-accent {
+  color: var(--accent);
+  border-top-color: color-mix(in srgb, var(--btn-edge-hi) 80%, var(--accent));
+  border-bottom-color: color-mix(in srgb, var(--btn-edge-lo) 70%, var(--accent-line));
+}
+.btn-accent:hover:not(:disabled) {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--btn-face-hi)  90%, var(--accent-soft)) 0%,
+    color-mix(in srgb, var(--btn-face-mid) 88%, var(--accent-soft)) 52%,
+    var(--btn-face-lo) 100%);
+  color: var(--accent);
+}
+
+/* ══════════════════════════════════════════════════════════
+   CIRCULAR CONTROL — record / mic
+   Skeuomorphic dome: radial gradient depth, circular bevel,
+   hemisphere gloss, physical press.
+══════════════════════════════════════════════════════════ */
+
+.btn-circle {
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
   position: relative;
   overflow: hidden;
-  background: var(--btn-grad);
-  border: 1px solid;
-  border-top-color:    var(--bevel-hi-btn);
-  border-left-color:   var(--bevel-hi);
-  border-bottom-color: var(--bevel-lo);
-  border-right-color:  rgba(0, 0, 0, 0.44);
-  box-shadow: var(--btn-shadow);
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  /* Radial gradient — simulates a domed button surface */
+  background: radial-gradient(ellipse at 42% 32%,
+    var(--btn-face-hi)  0%,
+    var(--btn-face-mid) 52%,
+    var(--btn-face-lo)  100%);
+
+  border-style: solid;
+  border-width: 1px;
+  border-top-color:    var(--btn-edge-hi);
+  border-left-color:   var(--btn-edge-side);
+  border-right-color:  color-mix(in srgb, var(--btn-edge-lo) 55%, transparent);
+  border-bottom-color: var(--btn-edge-lo);
+
+  color: var(--ink);
   cursor: pointer;
-  color: var(--text-secondary);
   outline: none;
-  transition: background 0.10s ease, color 0.14s ease, box-shadow 0.10s ease, transform 0.08s ease;
+  box-shadow:
+    inset 0 1.5px 0 var(--btn-sheen),
+    0 5px 14px var(--btn-drop),
+    0 2px 4px rgba(0, 0, 0, 0.14),
+    0 1px 1px rgba(0, 0, 0, 0.10);
+  transition:
+    background 240ms var(--ease),
+    color 240ms var(--ease),
+    border-color 240ms var(--ease),
+    box-shadow 240ms var(--ease),
+    transform 240ms var(--ease);
+  will-change: transform;
 }
-.skeu-toggle::before {
+
+/* Upper-hemisphere gloss */
+.btn-circle::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 52%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.14) 0%, transparent 100%);
-  border-radius: 50%;
+  height: 50%;
+  border-radius: 50% 50% 0 0;
+  background: linear-gradient(180deg,
+    var(--btn-sheen) 0%,
+    rgba(255, 255, 255, 0) 100%);
   pointer-events: none;
 }
-[data-theme="light"] .skeu-toggle::before {
-  background: linear-gradient(180deg, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0.10) 65%, transparent 100%);
-}
-.skeu-toggle:hover  { background: var(--btn-grad-hover); color: var(--text-primary); }
-.skeu-toggle:active { background: var(--btn-grad-press); box-shadow: var(--btn-shadow-press); transform: scale(0.92); }
 
-/* ── Engraved divider ────────────────────────────────────── */
-.skeu-divider {
-  height: 0; border: none;
-  border-top:    1px solid rgba(0, 0, 0, 0.55);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  margin: 0 16px;
-  transition: border-color 0.3s ease;
-}
-[data-theme="light"] .skeu-divider {
-  border-top-color:    rgba(0, 0, 0, 0.20);
-  border-bottom-color: rgba(255, 255, 255, 0.76);
+.btn-circle:hover:not(:disabled) {
+  background: radial-gradient(ellipse at 42% 32%,
+    color-mix(in srgb, var(--btn-face-hi)  90%, white) 0%,
+    color-mix(in srgb, var(--btn-face-mid) 92%, white) 52%,
+    var(--btn-face-lo) 100%);
+  transform: translateY(-1px) scale(1.03);
+  box-shadow:
+    inset 0 1.5px 0 var(--btn-sheen),
+    0 10px 24px var(--btn-drop),
+    0 4px 8px rgba(0, 0, 0, 0.12);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   LED INDICATORS — jewel-tone physical lights
-═══════════════════════════════════════════════════════════ */
+/* Dome pressed in — radial shifts to bottom, sinks 1px */
+.btn-circle:active:not(:disabled) {
+  background: radial-gradient(ellipse at 42% 68%,
+    var(--btn-face-hi)  0%,
+    var(--btn-face-lo)  52%,
+    var(--btn-face-mid) 100%);
+  border-top-color:    var(--btn-edge-lo);
+  border-bottom-color: var(--btn-edge-hi);
+  transform: translateY(1px) scale(0.97);
+  box-shadow:
+    inset 0 2px 7px rgba(0, 0, 0, 0.26),
+    inset 0 1px 2px rgba(0, 0, 0, 0.16),
+    0 1px 2px rgba(0, 0, 0, 0.08);
+  transition-duration: 80ms;
+}
+.btn-circle:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+  box-shadow:
+    inset 0 1.5px 0 var(--btn-sheen),
+    0 0 0 5px var(--accent-soft);
+}
+
+/* Active / recording — skeuomorphic red dome */
+.btn-circle-active {
+  background: radial-gradient(ellipse at 42% 32%,
+    color-mix(in srgb, var(--accent) 76%, white) 0%,
+    var(--accent)                                52%,
+    var(--accent-2)                             100%);
+  border-top-color:    color-mix(in srgb, var(--accent)   52%, white);
+  border-left-color:   color-mix(in srgb, var(--accent)   68%, white);
+  border-right-color:  color-mix(in srgb, var(--accent-2) 80%, black);
+  border-bottom-color: color-mix(in srgb, var(--accent-2) 84%, black);
+  color: #fff;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.52),
+    inset 0 -8px 14px -10px rgba(0, 0, 0, 0.50),
+    0 6px 18px color-mix(in srgb, var(--accent) 38%, transparent),
+    0 2px 5px rgba(0, 0, 0, 0.22);
+}
+/* Bright dome gloss on the red active state */
+.btn-circle-active::before {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.42) 0%,
+    rgba(255, 255, 255, 0)    100%);
+}
+.btn-circle-active:hover:not(:disabled) {
+  background: radial-gradient(ellipse at 42% 32%,
+    color-mix(in srgb, var(--accent) 68%, white) 0%,
+    var(--accent)                                48%,
+    var(--accent-2)                             100%);
+  color: #fff;
+  transform: translateY(-1px) scale(1.03);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -8px 14px -10px rgba(0, 0, 0, 0.50),
+    0 12px 30px color-mix(in srgb, var(--accent) 48%, transparent),
+    0 4px 8px rgba(0, 0, 0, 0.18);
+}
+
+/* ══════════════════════════════════════════════════════════
+   LED INDICATORS
+══════════════════════════════════════════════════════════ */
 .led {
-  width: 9px; height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   display: inline-block;
   flex-shrink: 0;
+  background: var(--ink-4);
+  border: 1px solid rgba(0, 0, 0, 0.20);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
-.led-green {
-  background: radial-gradient(circle at 35% 30%,
-    #b0ffe8 4%, #2eeba0 40%, #08a060 70%, #012c18 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 0 0 1px rgba(0, 0, 0, 0.58),
-    0 0 8px var(--green),
-    0 0 18px var(--green-glow);
-}
-.led-amber {
-  background: radial-gradient(circle at 35% 30%,
-    #fff3c0 4%, #ffc340 40%, #cc8800 70%, #5a2800 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.38),
-    0 0 0 1px rgba(0, 0, 0, 0.58),
-    0 0 7px var(--amber),
-    0 0 15px rgba(255,195,64,0.40);
-}
-.led-red {
-  background: radial-gradient(circle at 35% 30%,
-    #ffe0e0 4%, #ff7070 40%, #cc2020 70%, #4a0000 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.34),
-    0 0 0 1px rgba(0, 0, 0, 0.58),
-    0 0 7px var(--red),
-    0 0 15px var(--red-glow);
-}
-.led-off {
-  background: radial-gradient(circle at 35% 30%,
-    #404052 4%, #28283a 50%, #101018 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.09),
-    0 0 0 1px rgba(0, 0, 0, 0.65);
-}
+.led-on     { background: var(--ok);     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12), 0 0 6px color-mix(in srgb, var(--ok) 45%, transparent); }
+.led-accent { background: var(--accent); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12), 0 0 6px var(--accent-soft); }
+.led-warn   { background: var(--warn);   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12), 0 0 6px color-mix(in srgb, var(--warn) 45%, transparent); }
+.led-off    { background: var(--surface-3); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08); }
 
-/* ═══════════════════════════════════════════════════════════
-   CONFIDENCE BAR — VU-meter recessed trough
-═══════════════════════════════════════════════════════════ */
+@keyframes led-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.30; }
+}
+.led-blink { animation: led-blink 1.4s ease-in-out infinite; }
+
+/* ══════════════════════════════════════════════════════════
+   CONFIDENCE / LEVEL BAR — segmented
+══════════════════════════════════════════════════════════ */
 .confidence-track {
-  background: linear-gradient(170deg, var(--srf-inset-bg) 0%, var(--srf-inset-hi) 100%);
-  border: 1px solid;
-  border-top-color:    rgba(0, 0, 0, 0.74);
-  border-bottom-color: rgba(255, 255, 255, 0.07);
-  box-shadow:
-    inset 0 2px 5px rgba(0, 0, 0, 0.80),
-    0 1px 0 rgba(255, 255, 255, 0.07);
-  border-radius: 99px;
+  height: 10px;
+  background: var(--surface-3);
+  border: 1px solid var(--line);
+  position: relative;
   overflow: hidden;
-  height: 7px;
+}
+[data-theme="light"] .confidence-track {
+  background: var(--inset);
 }
 .confidence-fill {
-  background: linear-gradient(
-    90deg,
-    #0a8858 0%,
-    #1acc80 28%,
-    #2eeba0 50%,
-    color-mix(in srgb, #2eeba0 52%, white) 55%,
-    #1acc80 74%,
-    #0a8858 100%
-  );
-  background-size: 200% auto;
-  animation: shimmer-bar 1.8s linear infinite;
   height: 100%;
-  border-radius: 99px;
-  box-shadow: 0 0 8px var(--green-glow);
+  background: var(--accent);
+  transition: width 200ms ease-out;
+}
+/* Segmentation: overlay vertical hairlines every 10% */
+.confidence-track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent calc(10% - 1px),
+      var(--paper) calc(10% - 1px),
+      var(--paper) 10%
+    );
+  opacity: 0.85;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   TYPOGRAPHY
-═══════════════════════════════════════════════════════════ */
-.label {
-  font-size: 0.63rem;
-  font-weight: 700;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  text-shadow: 0 1px 0 var(--bevel-hi);
+/* Vertical mini level meter — for STT recording */
+.meter {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 18px;
+}
+.meter span {
+  display: block;
+  width: 3px;
+  background: var(--ink-3);
+  transition: background 120ms ease;
+}
+.meter-active span { background: var(--accent); }
+@keyframes meter-bounce {
+  0%, 100% { height: 30%; }
+  50%      { height: 100%; }
 }
 
-.mono { font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace; }
-
-.glow-green { color: var(--green); text-shadow: 0 0 10px var(--green-glow), 0 0 22px var(--green-glow); }
-.glow-blue  { color: var(--blue);  text-shadow: 0 0 10px var(--blue-glow); }
-.glow-red   { color: var(--red);   text-shadow: 0 0 10px var(--red-glow);  }
-
-/* ═══════════════════════════════════════════════════════════
-   ANIMATIONS
-═══════════════════════════════════════════════════════════ */
-
-@keyframes pulse-led {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.28; }
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE HELPERS
+══════════════════════════════════════════════════════════ */
+/* Optional HUD readouts that disappear when the header can't fit them */
+@media (max-width: 1240px) {
+  .hud-optional-lg { display: none !important; }
 }
-.led-pulse { animation: pulse-led 1.4s ease-in-out infinite; }
-
-@keyframes shimmer-bar {
-  from { background-position: -200% center; }
-  to   { background-position:  200% center; }
+@media (max-width: 1080px) {
+  .hud-optional-md { display: none !important; }
 }
 
-@keyframes blink-cursor {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+/* ══════════════════════════════════════════════════════════
+   LIQUID GLASS — frosted overlays with optical depth,
+   edge highlighting and a specular sheen. Used for elements
+   that float over the camera feed.
+══════════════════════════════════════════════════════════ */
+.liquid-glass {
+  position: relative;
+  isolation: isolate;
+  background: rgba(16, 17, 22, 0.50);
+  backdrop-filter: blur(22px) saturate(185%) brightness(1.12);
+  -webkit-backdrop-filter: blur(22px) saturate(185%) brightness(1.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    /* bright top + left rim — the glass edge catching light */
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.55),
+    inset 1.5px 0 1px rgba(255, 255, 255, 0.16),
+    inset -1.5px 0 1px rgba(255, 255, 255, 0.08),
+    /* optical depth — dark inner base gives the glass thickness */
+    inset 0 -14px 24px -18px rgba(0, 0, 0, 0.85),
+    inset 0 -1.5px 1px rgba(0, 0, 0, 0.35),
+    /* the slab floats */
+    0 18px 44px -12px rgba(0, 0, 0, 0.58),
+    0 5px 14px -4px rgba(0, 0, 0, 0.42);
 }
-.cursor { animation: blink-cursor 1s step-end infinite; }
-
-@keyframes letter-pop {
-  0%   { transform: scale(1);    }
-  40%  { transform: scale(1.38); }
-  70%  { transform: scale(0.90); }
-  100% { transform: scale(1);    }
+/* Specular sheen — diagonal light sweep across the surface */
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(143deg,
+    rgba(255, 255, 255, 0.26) 0%,
+    rgba(255, 255, 255, 0.07) 15%,
+    rgba(255, 255, 255, 0) 34%,
+    rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  z-index: 0;
 }
-.letter-pop { animation: letter-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+/* Keep real content above the sheen */
+.liquid-glass > * { position: relative; z-index: 1; }
 
-/* Ring disc — pulsing glow when a sign is being held */
-@keyframes disc-glow {
-  0%, 100% {
-    box-shadow:
-      inset 0 1px 0 var(--bevel-hi),
-      0 8px 22px rgba(0, 0, 0, 0.50),
-      0 0 14px var(--green-glow);
-  }
-  50% {
-    box-shadow:
-      inset 0 1px 0 var(--bevel-hi),
-      0 8px 22px rgba(0, 0, 0, 0.50),
-      0 0 32px var(--green-glow),
-      0 0 58px var(--green-glow2);
-  }
+/* ══════════════════════════════════════════════════════════
+   CORNER BRACKETS
+══════════════════════════════════════════════════════════ */
+.corner-bracket {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  color: rgba(236, 235, 229, 0.55);
 }
-.disc-active { animation: disc-glow 1.6s ease-in-out infinite; }
+.corner-bracket::before,
+.corner-bracket::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+}
+.corner-bracket::before { width: 100%; height: 1px; }
+.corner-bracket::after  { width: 1px;  height: 100%; }
+.corner-tl { top: 10px;    left: 10px;    }
+.corner-tl::before { top: 0; left: 0; }
+.corner-tl::after  { top: 0; left: 0; }
+.corner-tr { top: 10px;    right: 10px;   }
+.corner-tr::before { top: 0; right: 0; }
+.corner-tr::after  { top: 0; right: 0; }
+.corner-bl { bottom: 10px; left: 10px;    }
+.corner-bl::before { bottom: 0; left: 0; }
+.corner-bl::after  { bottom: 0; left: 0; }
+.corner-br { bottom: 10px; right: 10px;   }
+.corner-br::before { bottom: 0; right: 0; }
+.corner-br::after  { bottom: 0; right: 0; }
 
-/* Scanning beam — for the empty state terminal screen */
-@keyframes scan-line {
-  0%   { transform: translateY(-100%); opacity: 0; }
-  10%  { opacity: 0.6; }
-  90%  { opacity: 0.6; }
-  100% { transform: translateY(600%); opacity: 0; }
+/* ══════════════════════════════════════════════════════════
+   TERMINAL CURSOR
+══════════════════════════════════════════════════════════ */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1em;
+  background: currentColor;
+  vertical-align: -2px;
+  margin-left: 2px;
+  animation: blink 1.05s step-end infinite;
+}
+
+/* Tape reel — spinning indicator when recording */
+@keyframes reel-spin {
+  from { transform: rotate(0); }
+  to   { transform: rotate(360deg); }
+}
+.reel { animation: reel-spin 2.5s linear infinite; }
+
+/* Scan line — camera feed only */
+@keyframes scan {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(2000%); }
 }
 .scan-line {
   pointer-events: none;
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(46, 235, 160, 0.06) 45%,
-    rgba(46, 235, 160, 0.10) 50%,
-    rgba(46, 235, 160, 0.06) 55%,
-    transparent 100%
-  );
-  animation: scan-line 4s ease-in-out infinite;
+  left: 0; right: 0;
+  height: 1px;
+  background: rgba(236, 235, 229, 0.06);
+  animation: scan 7s linear infinite;
 }
 
-/* Gentle float for empty-state icon boxes */
-@keyframes float-up {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-7px); }
-}
+/* ══════════════════════════════════════════════════════════
+   GROUP — used by Tailwind hover state in TranscriptPanel
+══════════════════════════════════════════════════════════ */
 
-/* Green glow pulse — for decorative elements */
-@keyframes glow-pulse {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50%       { opacity: 1;   transform: scale(1.06); }
-}
-
-/* Mic ripple rings */
-@keyframes mic-ring {
-  0%   { box-shadow: var(--btn-shadow), 0 0 0  0px var(--green-glow); }
-  70%  { box-shadow: var(--btn-shadow), 0 0 0 18px rgba(46, 235, 160, 0); }
-  100% { box-shadow: var(--btn-shadow), 0 0 0  0px rgba(46, 235, 160, 0); }
-}
-.mic-ring { animation: mic-ring 1.6s ease-out infinite; }
-
-
-/* Icon breathe — long, lazy fade so it reads as "alive" not "blinking" */
-@keyframes icon-breathe {
-  0%, 100% { opacity: 0.68; }
-  50%       { opacity: 1.00; }
-}
-.icon-glow-green {
-  filter: drop-shadow(0 0 7px rgba(46, 235, 160, 0.75));
-  animation: icon-breathe 4.8s ease-in-out infinite;
-}
-.icon-glow-blue {
-  filter: drop-shadow(0 0 7px rgba(110, 180, 255, 0.75));
-  animation: icon-breathe 4.8s ease-in-out 2.4s infinite;
-}
-
-/* Dot pulse — slow sequential ripple, long hold at each extreme */
-@keyframes dot-pulse {
-  0%, 35%, 100% { opacity: 0.18; transform: scale(0.82); }
-  55%, 80%      { opacity: 0.90; transform: scale(1.14); }
-}
-.dot-pulse-0 { animation: dot-pulse 3.6s ease-in-out 0.00s infinite; }
-.dot-pulse-1 { animation: dot-pulse 3.6s ease-in-out 0.45s infinite; }
-.dot-pulse-2 { animation: dot-pulse 3.6s ease-in-out 0.90s infinite; }
-
+/* ══════════════════════════════════════════════════════════
+   REDUCED MOTION
+══════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

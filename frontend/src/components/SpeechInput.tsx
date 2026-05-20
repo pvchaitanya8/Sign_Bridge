@@ -1,187 +1,144 @@
-import { motion, AnimatePresence } from 'framer-motion'
-import { Mic, MicOff, AlertCircle } from 'lucide-react'
-import { useSTT }   from '../hooks/useSpeech'
+import React                       from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Mic, Square, AlertCircle } from 'lucide-react'
+import { useSTT } from '../hooks/useSpeech'
 
 interface SpeechInputProps {
   onMessage: (text: string) => void
 }
 
+const METER_BARS = 16
+
 export function SpeechInput({ onMessage }: SpeechInputProps) {
-  const { startListening, stopListening, isListening, interim, isSupported } = useSTT()
+  const { startListening, stopListening, isListening, interim, isSupported, audioLevel } = useSTT()
 
   const handleToggle = () =>
     isListening ? stopListening() : startListening(onMessage)
 
+  /**
+   * Inline style applied ONLY while recording so the mic button pulses
+   * with the user's actual voice amplitude (0–1 RMS from Web Audio API).
+   * - scale: grows up to 18 % at peak voice level (conversational = ~0.4–0.7)
+   * - filter: drop-shadow glow whose radius & opacity track amplitude
+   * When recording stops the inline style is removed and the CSS class
+   * transition springs the button smoothly back to rest.
+   */
+  const micPulseStyle: React.CSSProperties | undefined = isListening
+    ? {
+        transform: `scale(${(1 + audioLevel * 0.18).toFixed(3)})`,
+        filter: audioLevel > 0.02
+          ? `drop-shadow(0 0 ${(audioLevel * 14).toFixed(1)}px rgba(215, 42, 56, ${Math.min(0.25 + audioLevel * 0.55, 0.80).toFixed(2)}))`
+          : 'none',
+        transition: 'transform 90ms ease-out, filter 90ms ease-out',
+      }
+    : undefined
+
   if (!isSupported) {
     return (
-      <div className="skeu-chip" style={{
-        display: 'flex', alignItems: 'center', gap: 10,
-        padding: '10px 16px', borderRadius: 12,
-        borderTopColor: 'rgba(251,191,36,0.38)',
-        borderLeftColor: 'rgba(251,191,36,0.22)',
-      }}>
-        <AlertCircle size={14} style={{ color: 'var(--amber)', flexShrink: 0 }} />
-        <p style={{ fontSize: '0.74rem', fontWeight: 500, color: 'var(--amber)' }}>
-          Speech input requires Chrome or Edge
-        </p>
+      <div>
+        <div className="bar">
+          <span>LISTENER REPLY</span>
+        </div>
+        <div style={{
+          padding: '14px 16px',
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <AlertCircle size={14} strokeWidth={1.7} style={{ color: 'var(--warn)', flexShrink: 0 }} />
+          <p className="mono" style={{
+            fontSize: 11, color: 'var(--warn)',
+            letterSpacing: '0.06em',
+          }}>
+            Speech input requires Chrome or Edge
+          </p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <div>
 
-      {/* ── Header ─────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div className="skeu-chip" style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '5px 12px',
-        }}>
-          <Mic size={10} style={{ color: 'var(--blue)', flexShrink: 0 }} />
-          <span style={{
-            fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.14em',
-            textTransform: 'uppercase', color: 'var(--text-secondary)',
-          }}>Listener Reply</span>
+      {/* ── Section bar ─────────────────────────────────── */}
+      <div className="bar">
+        <div className="bar-section">
+          <span>LISTENER REPLY</span>
+          <span style={{ opacity: 0.55 }}>STT</span>
         </div>
-
-        {/* Listening indicator — skeu chip with green accent */}
-        <AnimatePresence>
-          {isListening && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85, x: 8 }}
-              animate={{ opacity: 1, scale: 1,    x: 0 }}
-              exit={{    opacity: 0, scale: 0.85, x: 8 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 22 }}
-              className="skeu-chip"
-              style={{
-                display: 'flex', alignItems: 'center', gap: 7,
-                padding: '5px 12px',
-                borderTopColor: 'rgba(52,211,153,0.45)',
-                borderLeftColor: 'rgba(52,211,153,0.28)',
-              }}
-            >
-              <span className="led led-green led-pulse" />
-              <span style={{
-                fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.12em',
-                textTransform: 'uppercase', color: 'var(--green)',
-              }}>
-                Listening
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span className={isListening ? 'led led-accent led-blink' : 'led led-off'} />
+          <span style={{
+            fontSize: 10, letterSpacing: '0.18em',
+            color: isListening ? 'var(--accent)' : 'rgba(236, 235, 229, 0.55)',
+          }}>
+            {isListening ? 'RECORDING' : 'STANDBY'}
+          </span>
+        </div>
       </div>
 
       {/* ── Mic row ─────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div style={{
+        padding: '18px 16px',
+        display: 'flex', alignItems: 'center', gap: 18,
+      }}>
+        <button
+          onClick={handleToggle}
+          className={isListening ? 'btn-circle btn-circle-active' : 'btn-circle'}
+          aria-label={isListening ? 'Stop recording' : 'Start recording'}
+          style={micPulseStyle}
+        >
+          {isListening
+            ? <Square size={18} strokeWidth={1.8} fill="currentColor" />
+            : <Mic    size={22} strokeWidth={1.8} />}
+        </button>
 
-        {/* Mic button + ripple rings container */}
-        <div style={{ position: 'relative', flexShrink: 0, width: 64, height: 64 }}>
-
-          {/* Concentric ripple rings when listening */}
-          <AnimatePresence>
-            {isListening && ([0, 1] as const).map(i => (
-              <motion.div
-                key={i}
-                initial={{ scale: 1, opacity: 0.5 }}
-                animate={{ scale: 2.5, opacity: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  duration: 1.8,
-                  repeat: Infinity,
-                  ease: 'easeOut',
-                  delay: i * 0.7,
-                }}
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  borderRadius: '50%',
-                  border: '2px solid var(--green)',
-                  pointerEvents: 'none',
-                }}
-              />
-            ))}
-          </AnimatePresence>
-
-          {/* Physical mic button — 3-D raised / pressed */}
-          <motion.button
-            whileHover={{ scale: 1.08 }}
-            whileTap={{   scale: 0.91 }}
-            onClick={handleToggle}
-            style={{
-              position: 'absolute', inset: 0,
-              borderRadius: '50%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', zIndex: 1,
-              background: isListening ? 'var(--btn-green-grad)' : 'var(--btn-grad)',
-              color: isListening ? '#ffffff' : 'var(--text-secondary)',
-              border: '1px solid',
-              borderTopColor:    isListening ? 'rgba(80,245,185,0.80)' : 'var(--bevel-hi-btn)',
-              borderLeftColor:   isListening ? 'rgba(60,225,160,0.55)' : 'var(--bevel-hi)',
-              borderBottomColor: isListening ? 'rgba(4,96,68,0.90)'    : 'var(--bevel-lo)',
-              borderRightColor:  isListening ? 'rgba(6,120,80,0.68)'   : 'rgba(0,0,0,0.42)',
-              boxShadow: isListening ? 'var(--btn-green-shadow)' : 'var(--btn-shadow)',
-              transition: 'background 0.3s ease, color 0.25s ease, box-shadow 0.3s ease, border-color 0.3s ease',
-            }}
-            aria-label={isListening ? 'Stop recording' : 'Start recording'}
-          >
-            <AnimatePresence mode="wait">
-              {isListening ? (
-                <motion.span key="stop"
-                  initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                  exit={{    scale: 0.5, opacity: 0 }} transition={{ duration: 0.18 }}
-                  style={{ display: 'flex' }}
-                >
-                  <MicOff size={24} />
-                </motion.span>
-              ) : (
-                <motion.span key="start"
-                  initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                  exit={{    scale: 0.5, opacity: 0 }} transition={{ duration: 0.18 }}
-                  style={{ display: 'flex' }}
-                >
-                  <Mic size={24} />
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.button>
-        </div>
-
-        {/* Label + interim */}
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={isListening ? 'rec' : 'idle'}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{    opacity: 0, y: -4 }}
-              transition={{ duration: 0.18 }}
-              style={{
-                fontSize: '0.88rem', fontWeight: 700,
-                color: isListening ? 'var(--green)' : 'var(--text-primary)',
-                lineHeight: 1,
-                textShadow: isListening ? '0 0 10px var(--green-glow)' : 'none',
-              }}
-            >
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+            <p style={{
+              fontSize: 14, fontWeight: 600,
+              color: isListening ? 'var(--accent)' : 'var(--ink)',
+              letterSpacing: '0.01em', lineHeight: 1,
+            }}>
               {isListening ? 'Recording…' : 'Tap to reply by voice'}
-            </motion.p>
-          </AnimatePresence>
+            </p>
 
-          {/* Interim transcript or hint */}
+            {/* Level meter — animated bars only when recording */}
+            <div className={`meter ${isListening ? 'meter-active' : ''}`}>
+              {Array.from({ length: METER_BARS }).map((_, i) => {
+                const baseHeight = 30 + ((i * 37) % 70)
+                return (
+                  <span
+                    key={i}
+                    style={{
+                      height: isListening ? undefined : `${baseHeight}%`,
+                      animation: isListening
+                        ? `meter-bounce ${0.42 + (i % 5) * 0.10}s ease-in-out ${i * 0.06}s infinite`
+                        : 'none',
+                    }}
+                  />
+                )
+              })}
+            </div>
+          </div>
+
           <AnimatePresence mode="wait">
             {isListening && interim ? (
               <motion.div
                 key="interim"
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{    opacity: 0       }}
-                className="skeu-inset-sm"
-                style={{ borderRadius: 8, padding: '4px 10px' }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{    opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="panel-inset"
+                style={{
+                  padding: '6px 10px',
+                  overflow: 'hidden',
+                }}
               >
-                <p style={{
-                  fontSize: '0.74rem', color: 'var(--text-secondary)',
-                  fontStyle: 'italic',
+                <p className="mono" style={{
+                  fontSize: 11, color: 'var(--on-inset)',
+                  letterSpacing: '0.04em',
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  lineHeight: 1.3,
                 }}>
                   {interim}
                 </p>
@@ -191,12 +148,13 @@ export function SpeechInput({ onMessage }: SpeechInputProps) {
                 key="hint"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                style={{
-                  fontSize: '0.61rem', fontWeight: 700, letterSpacing: '0.12em',
-                  textTransform: 'uppercase', color: 'var(--text-muted)',
-                }}
+                transition={{ duration: 0.15 }}
+                className="label"
+                style={{ fontSize: 10 }}
               >
-                {isListening ? 'Tap again to stop' : 'Listener side · STT'}
+                {isListening
+                  ? '> tap stop when finished · auto-detects pause'
+                  : 'STT · listener side · english (US)'}
               </motion.p>
             )}
           </AnimatePresence>

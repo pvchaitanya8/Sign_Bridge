@@ -5,6 +5,8 @@ backend/__pycache__/
 **/*.pyc
 **/*.pyo
 backend/.env
+.venv/
+venv/
 
 # ── Dataset (too large for git — 87k images) ─────────────
 backend/dataset/

@@ -119,6 +119,41 @@ describe('SentenceBuilder — hold-to-confirm', () => {
 
     expect(screen.getByText(/your sentence appears here/i)).toBeInTheDocument()
   })
+
+  it('tolerates a brief detection dropout without resetting the hold', () => {
+    const { rerender } = render(<SentenceBuilder prediction={null} onSend={vi.fn()} />)
+
+    rerender(<SentenceBuilder prediction={makePrediction('A')} onSend={vi.fn()} />)
+    act(() => { vi.advanceTimersByTime(800) })             // mid-hold
+
+    // brief dropout — shorter than the 300 ms grace window
+    rerender(<SentenceBuilder prediction={null} onSend={vi.fn()} />)
+    act(() => { vi.advanceTimersByTime(150) })
+
+    // detection recovers — the hold kept counting underneath
+    rerender(<SentenceBuilder prediction={makePrediction('A')} onSend={vi.fn()} />)
+    act(() => { vi.advanceTimersByTime(600) })             // ~1550 ms total → commits
+
+    const preview = document.querySelector('p.mono') as HTMLElement
+    expect(preview?.textContent).toMatch(/^A/)
+  })
+
+  it('resets the hold when a dropout exceeds the grace window', () => {
+    const { rerender } = render(<SentenceBuilder prediction={null} onSend={vi.fn()} />)
+
+    rerender(<SentenceBuilder prediction={makePrediction('A')} onSend={vi.fn()} />)
+    act(() => { vi.advanceTimersByTime(700) })
+
+    // long dropout — exceeds the 300 ms grace window → hold resets
+    rerender(<SentenceBuilder prediction={null} onSend={vi.fn()} />)
+    act(() => { vi.advanceTimersByTime(400) })
+
+    // detection recovers, but the previous hold is gone
+    rerender(<SentenceBuilder prediction={makePrediction('A')} onSend={vi.fn()} />)
+    act(() => { vi.advanceTimersByTime(900) })             // only 900 ms of a fresh hold
+
+    expect(screen.getByText(/your sentence appears here/i)).toBeInTheDocument()
+  })
 })
 
 // ─────────────────────────────────────────────────────────────────────────────

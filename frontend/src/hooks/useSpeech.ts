@@ -83,11 +83,19 @@ export function useTTS() {
 
 // ═════════════════════════════════════════════════════════════════════════════
 // useSTT — Speech-to-Text
+// Includes Web Audio API amplitude tracking so callers can pulse the
+// microphone button in sync with the user's actual voice level.
 // ═════════════════════════════════════════════════════════════════════════════
 export function useSTT() {
   const [isListening, setIsListening] = useState(false)
   const [interim, setInterim]         = useState('')
-  const recognitionRef                = useRef<SpeechRecognitionInstance | null>(null)
+  const [audioLevel, setAudioLevel]   = useState(0)   // 0–1 RMS amplitude
+
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
+  const audioCtxRef    = useRef<AudioContext | null>(null)
+  const analyserRef    = useRef<AnalyserNode  | null>(null)
+  const streamRef      = useRef<MediaStream   | null>(null)
+  const rafRef         = useRef<number>(0)
 
   const getSR = () =>
     typeof window !== 'undefined'
@@ -96,6 +104,54 @@ export function useSTT() {
 
   const isSupported = !!getSR()
 
+  /** Tear down Web Audio resources and zero the level meter. */
+  const stopAudio = () => {
+    cancelAnimationFrame(rafRef.current)
+    streamRef.current?.getTracks().forEach(t => t.stop())
+    audioCtxRef.current?.close().catch(() => {})
+    streamRef.current  = null
+    audioCtxRef.current = null
+    analyserRef.current = null
+    setAudioLevel(0)
+  }
+
+  /**
+   * Start a parallel getUserMedia stream → AudioContext → AnalyserNode
+   * RAF loop that reads RMS amplitude and updates audioLevel at ~60 fps.
+   * Runs alongside SpeechRecognition so both can use the microphone.
+   */
+  const startAudio = () => {
+    if (!navigator.mediaDevices?.getUserMedia) return
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+      .then(stream => {
+        streamRef.current = stream
+        const ctx      = new AudioContext()
+        const analyser = ctx.createAnalyser()
+        analyser.fftSize              = 512
+        analyser.smoothingTimeConstant = 0.68
+        ctx.createMediaStreamSource(stream).connect(analyser)
+        audioCtxRef.current = ctx
+        analyserRef.current = analyser
+
+        const buf = new Uint8Array(analyser.frequencyBinCount)
+        const tick = () => {
+          if (!analyserRef.current) return
+          analyserRef.current.getByteTimeDomainData(buf)
+          // RMS: centre-normalise each sample (128 = silence), compute root-mean-square
+          let sum = 0
+          for (let i = 0; i < buf.length; i++) {
+            const s = (buf[i] - 128) / 128
+            sum += s * s
+          }
+          // Scale ×5 so a conversational voice level fills the 0–1 range visibly
+          setAudioLevel(Math.min(Math.sqrt(sum / buf.length) * 5, 1))
+          rafRef.current = requestAnimationFrame(tick)
+        }
+        rafRef.current = requestAnimationFrame(tick)
+      })
+      .catch(() => { /* graceful degradation — audioLevel stays 0 */ })
+  }
+
   const startListening = useCallback((onFinal: (text: string) => void) => {
     const SR = getSR()
     if (!SR) return
@@ -103,10 +159,10 @@ export function useSTT() {
     // Abort any previous session cleanly
     recognitionRef.current?.abort()
 
-    const recognition          = new SR()
-    recognition.lang           = 'en-US'
-    recognition.interimResults = true
-    recognition.continuous     = true   // ← key fix: don't stop on first pause
+    const recognition           = new SR()
+    recognition.lang            = 'en-US'
+    recognition.interimResults  = true
+    recognition.continuous      = true   // ← key fix: don't stop on first pause
     recognition.maxAlternatives = 1
 
     // Accumulates all confirmed final segments for this session
@@ -115,6 +171,7 @@ export function useSTT() {
 
     recognition.onstart = () => {
       setIsListening(true)
+      startAudio()
     }
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -144,6 +201,7 @@ export function useSTT() {
 
       setIsListening(false)
       setInterim('')
+      stopAudio()
     }
 
     recognition.onend = () => {
@@ -155,6 +213,7 @@ export function useSTT() {
       session.finalText = ''
       setIsListening(false)
       setInterim('')
+      stopAudio()
     }
 
     recognitionRef.current = recognition
@@ -171,10 +230,17 @@ export function useSTT() {
   const stopListening = useCallback(() => {
     // stop() (not abort()) lets onend fire so accumulated text is flushed
     recognitionRef.current?.stop()
+    // Audio cleanup happens inside recognition.onend; also guard here
+    // in case onend never fires (e.g. permission revoked mid-session).
+    stopAudio()
   }, [])
 
-  // Abort on unmount — don't flush partial text
-  useEffect(() => () => { recognitionRef.current?.abort() }, [])
+  // Abort on unmount — don't flush partial text; also clean up audio
+  useEffect(() => () => {
+    recognitionRef.current?.abort()
+    stopAudio()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  return { startListening, stopListening, isListening, interim, isSupported }
+  return { startListening, stopListening, isListening, interim, isSupported, audioLevel }
 }

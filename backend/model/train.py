@@ -81,11 +81,21 @@ def train():
     print(f"\n{'='*60}")
     print(f"  Validation Accuracy : {acc * 100:.2f}%")
     print(f"{'='*60}")
+
+    # ── Save model first so a successful train always lands ──────────────────
+    bundle = {"model": clf, "label_encoder": le}
+    joblib.dump(bundle, MODEL_PATH)
+    print(f"\nModel saved to : {MODEL_PATH}")
+
+    # ── Per-class report (pass explicit labels so missing classes don't crash)
     print("\nPer-class report:")
+    all_label_ids = list(range(len(le.classes_)))
     print(
         classification_report(
             y_val, y_pred,
+            labels=all_label_ids,
             target_names=le.classes_,
+            zero_division=0,
         )
     )
 
@@ -96,12 +106,6 @@ def train():
     print("Top 10 landmark features:")
     for idx in top10:
         print(f"  {feature_names[idx]:<6}  importance: {importances[idx]:.4f}")
-
-    # ── Save model + label encoder together ──────────────────────────────────
-    # We bundle both so the backend only needs to load one file
-    bundle = {"model": clf, "label_encoder": le}
-    joblib.dump(bundle, MODEL_PATH)
-    print(f"\nModel saved to : {MODEL_PATH}")
 
     import os
     size_kb = os.path.getsize(MODEL_PATH) / 1024

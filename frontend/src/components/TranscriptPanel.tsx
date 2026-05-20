@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Volume2, Hand, Mic }      from 'lucide-react'
-import { cn }                      from '../lib/utils'
-import type { Message }            from '../types'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Volume2, Hand, Cpu, Mic, ArrowRight } from 'lucide-react'
+import type { Message } from '../types'
 
 interface TranscriptPanelProps {
   messages: Message[]
@@ -10,315 +9,238 @@ interface TranscriptPanelProps {
 }
 
 function formatTime(d: Date) {
-  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleTimeString('en-US', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  })
 }
 
 export function TranscriptPanel({ messages, onSpeak }: TranscriptPanelProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [messages])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-      {/* ── Header ─────────────────────────────────────── */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        marginBottom: 14, flexShrink: 0,
-      }}>
-        <div className="skeu-chip" style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '5px 12px',
-        }}>
-          <Hand size={10} style={{ color: 'var(--green)', flexShrink: 0 }} />
-          <span style={{
-            fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.14em',
-            textTransform: 'uppercase', color: 'var(--text-secondary)',
-          }}>Conversation</span>
+      {/* ── Section bar ─────────────────────────────────── */}
+      <div className="bar">
+        <div className="bar-section">
+          <span>TRANSCRIPT · LOG</span>
+          <span style={{ opacity: 0.55 }}>CH 01</span>
         </div>
 
-        {/* Message count chip */}
-        <AnimatePresence>
-          {messages.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.7 }}
-              animate={{ opacity: 1, scale: 1   }}
-              exit={{    opacity: 0, scale: 0.7 }}
-              className="skeu-chip"
-              style={{ padding: '4px 12px' }}
-            >
-              <span style={{
-                fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em',
-                textTransform: 'uppercase', color: 'var(--green)',
-              }}>
-                {messages.length} msg{messages.length !== 1 ? 's' : ''}
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {messages.length > 0
+          ? (
+            <span className="chip chip-on-dark">
+              {messages.length.toString().padStart(2, '0')} MSG{messages.length !== 1 ? 'S' : ''}
+            </span>
+          )
+          : (
+            <span style={{ opacity: 0.55, fontSize: 10, letterSpacing: '0.16em' }}>
+              LOG · EMPTY
+            </span>
+          )
+        }
       </div>
 
-      {/* ── Scrollable feed — inset screen trough ──────── */}
-      <div
-        className="skeu-inset-lg"
-        style={{
-          flex: 1, minHeight: 0,
-          overflowY: 'auto',
-          padding: '16px 14px',
-          display: 'flex', flexDirection: 'column', gap: 12,
-        }}
-      >
-        {/* Empty state — terminal screen aesthetic */}
-        <AnimatePresence>
-          {messages.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{    opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              style={{
-                flex: 1, display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center', gap: 28,
-                position: 'relative',
-                /* no overflow:hidden here — it would clip the floating icons */
-                paddingTop: 20, paddingBottom: 20,
-              }}
-            >
-              {/* CRT scan-line — isolated in its own overflow:hidden shell */}
-              <div style={{
-                position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none',
-              }}>
-                <div className="scan-line" />
-              </div>
-
-              {/* Icon pair — floating metal enclosures */}
-              <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-
-                {/* Signer icon box — CSS float, no JS animation loop */}
-                <div
-                  style={{
-                    width: 72, height: 72, borderRadius: 20, flexShrink: 0,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background:
-                      'linear-gradient(160deg,' +
-                      '  rgba(46,235,160,0.32) 0%,' +
-                      '  rgba(20,60,36,0.96)   30%,' +
-                      '  rgba(6,20,12,0.98)   100%)',
-                    border: '1.5px solid',
-                    borderTopColor:    'rgba(46,235,160,0.80)',
-                    borderLeftColor:   'rgba(46,235,160,0.50)',
-                    borderBottomColor: 'rgba(0,0,0,0.80)',
-                    borderRightColor:  'rgba(0,0,0,0.60)',
-                    boxShadow:
-                      'inset 0 2px 0 rgba(46,235,160,0.40),' +
-                      'inset 0 -1px 0 rgba(0,0,0,0.60),' +
-                      '0 6px 20px rgba(0,0,0,0.70),' +
-                      '0 0 32px rgba(46,235,160,0.55),' +
-                      '0 0 64px rgba(46,235,160,0.22)',
-                  }}
-                >
-                  <Hand size={30} strokeWidth={1.5}
-                    className="icon-glow-green"
-                    style={{ color: 'var(--green)' }}
-                  />
-                </div>
-
-                {/* Animated separator dots — CSS only */}
-                <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
-                  {([0, 1, 2] as const).map(i => (
-                    <div
-                      key={i}
-                      className={`dot-pulse-${i}`}
-                      style={{
-                        width: 7, height: 7, borderRadius: '50%',
-                        background: 'var(--green)',
-                        boxShadow: '0 0 8px var(--green-glow), 0 0 16px var(--green-glow2)',
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Listener icon box — CSS float with phase offset */}
-                <div
-                  style={{
-                    width: 72, height: 72, borderRadius: 20, flexShrink: 0,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background:
-                      'linear-gradient(160deg,' +
-                      '  rgba(110,180,255,0.30) 0%,' +
-                      '  rgba(12,28,72,0.96)   30%,' +
-                      '  rgba(4,10,38,0.98)    100%)',
-                    border: '1.5px solid',
-                    borderTopColor:    'rgba(110,180,255,0.76)',
-                    borderLeftColor:   'rgba(110,180,255,0.46)',
-                    borderBottomColor: 'rgba(0,0,0,0.80)',
-                    borderRightColor:  'rgba(0,0,0,0.60)',
-                    boxShadow:
-                      'inset 0 2px 0 rgba(110,180,255,0.36),' +
-                      'inset 0 -1px 0 rgba(0,0,0,0.60),' +
-                      '0 6px 20px rgba(0,0,0,0.70),' +
-                      '0 0 32px rgba(110,180,255,0.52),' +
-                      '0 0 64px rgba(110,180,255,0.20)',
-                  }}
-                >
-                  <Mic size={30} strokeWidth={1.5}
-                    className="icon-glow-blue"
-                    style={{ color: 'var(--blue)' }}
-                  />
-                </div>
-              </div>
-
-              {/* Text block — uses explicit light colors for inset readability */}
-              <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <p style={{
-                  fontSize: '0.90rem', fontWeight: 700,
-                  color: 'var(--text-on-inset)',
-                  letterSpacing: '-0.01em',
-                }}>
-                  Ready for conversation
-                </p>
-
-                {/* Step hints — always light text */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                  <p style={{
-                    fontSize: '0.62rem', fontWeight: 700,
-                    letterSpacing: '0.11em', textTransform: 'uppercase',
-                    color: 'var(--text-on-inset-dim)',
-                  }}>
-                    Sign a message and press{' '}
-                    <span style={{
-                      color: 'var(--green)',
-                      textShadow: '0 0 8px var(--green-glow)',
-                    }}>
-                      Speak &amp; Send
-                    </span>
-                  </p>
-                  <p style={{
-                    fontSize: '0.62rem', fontWeight: 700,
-                    letterSpacing: '0.11em', textTransform: 'uppercase',
-                    color: 'var(--text-on-inset-muted)',
-                  }}>
-                    or tap the mic for a voice reply
-                  </p>
-                </div>
-              </div>
-
-              {/* Ambient bottom glow line */}
-              <div style={{
-                position: 'absolute', bottom: 0, left: '15%', right: '15%', height: 1,
-                background: 'linear-gradient(90deg, transparent, var(--green-border), transparent)',
-                opacity: 0.5,
-              }} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Messages */}
-        <AnimatePresence initial={false}>
-          {messages.map(msg => {
-            const isSigner = msg.role === 'signer'
-            return (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, x: isSigner ? -18 : 18, y: 5 }}
-                animate={{ opacity: 1, x: 0, y: 0 }}
-                transition={{ duration: 0.26, ease: 'easeOut' }}
-                style={{
-                  display: 'flex', gap: 10, alignItems: 'flex-end',
-                  flexDirection: isSigner ? 'row' : 'row-reverse',
-                }}
-              >
-                {/* Avatar — raised metal disc */}
-                <motion.div
-                  initial={{ scale: 0.6, opacity: 0 }}
-                  animate={{ scale: 1,   opacity: 1 }}
-                  transition={{ delay: 0.08, type: 'spring', stiffness: 380, damping: 20 }}
-                  style={{
-                    width: 32, height: 32, borderRadius: 10, flexShrink: 0,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    marginBottom: 2,
-                    background: 'linear-gradient(175deg, var(--srf-raise-hi) 0%, var(--base) 55%, var(--srf-raise-lo) 100%)',
-                    border: '1px solid',
-                    borderTopColor:    isSigner ? 'rgba(52,211,153,0.35)'  : 'rgba(96,165,250,0.28)',
-                    borderLeftColor:   isSigner ? 'rgba(52,211,153,0.20)'  : 'rgba(96,165,250,0.16)',
-                    borderBottomColor: 'var(--bevel-lo)',
-                    borderRightColor:  'rgba(0,0,0,0.38)',
-                    boxShadow: isSigner
-                      ? 'inset 0 1px 0 rgba(52,211,153,0.12), 0 3px 8px rgba(0,0,0,0.45), 0 0 8px var(--green-glow2)'
-                      : 'inset 0 1px 0 rgba(96,165,250,0.10), 0 3px 8px rgba(0,0,0,0.45), 0 0 8px var(--blue-glow)',
-                    color: isSigner ? 'var(--green)' : 'var(--blue)',
-                  }}
-                >
-                  {isSigner
-                    ? <Hand size={13} strokeWidth={2.2} />
-                    : <Mic  size={13} strokeWidth={2.2} />}
-                </motion.div>
-
-                {/* Bubble + meta */}
-                <div
-                  className="group"
-                  style={{
-                    maxWidth: '76%', display: 'flex', flexDirection: 'column',
-                    alignItems: isSigner ? 'flex-start' : 'flex-end',
-                    gap: 5,
-                  }}
-                >
-                  {/* Skeuomorphic message bubble */}
-                  <div
-                    className={isSigner ? 'skeu-bubble-signer' : 'skeu-bubble-listener'}
+      {/* ── Body ───────────────────────────────────────── */}
+      {messages.length === 0 ? (
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', position: 'relative' }}>
+          <EmptyState />
+        </div>
+      ) : (
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', position: 'relative' }}>
+          <div>
+            <AnimatePresence initial={false}>
+              {messages.map(msg => {
+                const isSigner = msg.role === 'signer'
+                const roleLabel = isSigner ? 'SIGNER  ' : 'LISTENER'
+                const arrow     = isSigner ? '▸' : '◂'
+                return (
+                  <motion.div
+                    key={msg.id}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.15, ease: 'easeOut' }}
+                    className="group"
                     style={{
-                      padding: '10px 14px',
-                      ...(isSigner
-                        ? { borderTopLeftRadius: 4 }
-                        : { borderTopRightRadius: 4 }),
+                      position: 'relative',
+                      display: 'grid',
+                      gridTemplateColumns: 'auto auto auto 1fr auto',
+                      gap: 12, alignItems: 'baseline',
+                      padding: '14px 20px',
+                      borderBottom: '1px solid var(--line)',
                     }}
                   >
-                    <p style={{
-                      fontSize: '0.84rem', lineHeight: 1.6,
-                      color: 'var(--text-primary)',
-                      fontWeight: 500,
-                    }}>
-                      {msg.text}
-                    </p>
-                  </div>
-
-                  {/* Hover meta row */}
-                  <div
-                    className={cn('opacity-0 group-hover:opacity-100 transition-opacity duration-200')}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 6,
-                      flexDirection: isSigner ? 'row' : 'row-reverse',
-                      padding: '0 4px',
-                    }}
-                  >
-                    <span style={{
-                      fontSize: '0.6rem', fontWeight: 600, color: 'var(--text-muted)',
-                      letterSpacing: '0.04em',
+                    <span className="mono" style={{
+                      fontSize: 10, fontWeight: 500,
+                      color: 'var(--ink-3)', letterSpacing: '0.04em',
                     }}>
                       {formatTime(msg.timestamp)}
                     </span>
+
+                    <span className="mono" style={{
+                      fontSize: 10, fontWeight: 700,
+                      letterSpacing: '0.12em',
+                      color: isSigner ? 'var(--accent)' : 'var(--ink-2)',
+                      whiteSpace: 'pre',
+                    }}>
+                      {roleLabel}
+                    </span>
+
+                    <span className="mono" style={{
+                      fontSize: 12, fontWeight: 600,
+                      color: 'var(--ink-3)',
+                    }}>
+                      {arrow}
+                    </span>
+
+                    <p style={{
+                      fontSize: 13.5, lineHeight: 1.55,
+                      color: 'var(--ink)',
+                      fontWeight: 400,
+                      wordBreak: 'break-word',
+                    }}>
+                      {msg.text}
+                    </p>
+
                     <button
                       onClick={() => onSpeak(msg.text)}
-                      style={{
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        color: 'var(--text-muted)', display: 'flex', alignItems: 'center',
-                        padding: 2, borderRadius: 4,
-                      }}
                       title="Read aloud"
+                      aria-label="Read aloud"
+                      className="opacity-0 group-hover:opacity-100"
+                      style={{
+                        background: 'transparent', border: '1px solid var(--line)',
+                        borderRadius: 'var(--r-xs)',
+                        cursor: 'pointer',
+                        color: 'var(--ink-3)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        width: 26, height: 26,
+                        transition: 'opacity 120ms ease, color 120ms ease, border-color 120ms ease',
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.color = 'var(--ink)'
+                        e.currentTarget.style.borderColor = 'var(--line-2)'
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.color = 'var(--ink-3)'
+                        e.currentTarget.style.borderColor = 'var(--line)'
+                      }}
                     >
-                      <Volume2 size={11} />
+                      <Volume2 size={12} strokeWidth={1.7} />
                     </button>
-                  </div>
-                </div>
-              </motion.div>
-            )
-          })}
-        </AnimatePresence>
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
+            <div ref={bottomRef} />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
-        <div ref={bottomRef} />
+/* ─────────────────────────────────────────────────────────
+   Empty state — signal-flow schematic
+───────────────────────────────────────────────────────── */
+function EmptyState() {
+  return (
+    <div style={{
+      minHeight: '100%',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      padding: '20px 24px',
+      gap: 14,
+      boxSizing: 'border-box',
+    }}>
+      {/* Headline */}
+      <div style={{ textAlign: 'center' }}>
+        <p className="label label-ink-2" style={{ fontSize: 9, marginBottom: 6 }}>
+          READY FOR CONVERSATION
+        </p>
+        <p style={{
+          fontSize: 13, fontWeight: 500,
+          color: 'var(--ink-2)', letterSpacing: '0.01em',
+          maxWidth: 340, lineHeight: 1.5,
+        }}>
+          Sign with your hand or tap the mic to reply by voice.
+        </p>
       </div>
+
+      {/* Schematic — three modules with arrows */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr auto 1fr auto 1fr',
+        alignItems: 'center', gap: 8,
+        width: '100%', maxWidth: 380,
+      }}>
+        <Node icon={<Hand size={17} strokeWidth={1.7} />} title="HAND" sub="SIGNS" tone="accent" />
+        <FlowArrow />
+        <Node icon={<Cpu size={17} strokeWidth={1.7} />} title="MODEL" sub="ASL-RF" tone="ink" />
+        <FlowArrow />
+        <Node icon={<Mic size={17} strokeWidth={1.7} />} title="VOICE" sub="OR TEXT" tone="ink" />
+      </div>
+
+      {/* Single-line meta footer */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 10,
+        paddingTop: 6,
+      }}>
+        <span className="label" style={{ fontSize: 9 }}>HOLD 1.5s</span>
+        <span style={{ width: 1, height: 10, background: 'var(--line-2)' }} />
+        <span className="label" style={{ fontSize: 9 }}>A–Z · SPACE · DEL</span>
+      </div>
+    </div>
+  )
+}
+
+function Node({ icon, title, sub, tone }: {
+  icon: React.ReactNode
+  title: string
+  sub: string
+  tone: 'accent' | 'ink'
+}) {
+  const color = tone === 'accent' ? 'var(--accent)' : 'var(--ink)'
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+      padding: '12px 8px',
+      background: 'var(--surface-2)',
+      border: '1px solid var(--line)',
+      borderRadius: 'var(--r-sm)',
+    }}>
+      <div style={{ color, lineHeight: 1 }}>{icon}</div>
+      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <span className="mono" style={{
+          fontSize: 10, fontWeight: 700, letterSpacing: '0.14em',
+          color: 'var(--ink)',
+        }}>
+          {title}
+        </span>
+        <span className="mono" style={{
+          fontSize: 9, fontWeight: 500, letterSpacing: '0.12em',
+          color: 'var(--ink-3)',
+        }}>
+          {sub}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function FlowArrow() {
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+      color: 'var(--ink-3)',
+    }}>
+      <ArrowRight size={14} strokeWidth={1.5} />
+      <span className="mono" style={{ fontSize: 8, letterSpacing: '0.12em' }}>
+        ··
+      </span>
     </div>
   )
 }
