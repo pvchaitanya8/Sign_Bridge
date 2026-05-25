@@ -1,13 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence }          from 'framer-motion'
-import { Sun, Moon }                        from 'lucide-react'
-import { useWebSocket }                     from './hooks/useWebSocket'
-import { useTTS }                           from './hooks/useSpeech'
-import { CameraPanel }                      from './components/CameraPanel'
-import { SentenceBuilder }                  from './components/SentenceBuilder'
-import { TranscriptPanel }                  from './components/TranscriptPanel'
-import { SpeechInput }                      from './components/SpeechInput'
-import type { Message }                     from './types'
+import { Sun, Moon, Zap }                  from 'lucide-react'
+import { useWebSocket }                    from './hooks/useWebSocket'
+import { useTTS }                          from './hooks/useSpeech'
+import { CameraPanel }                     from './components/CameraPanel'
+import { SentenceBuilder }                 from './components/SentenceBuilder'
+import { TranscriptPanel }                 from './components/TranscriptPanel'
+import { SpeechInput }                     from './components/SpeechInput'
+import type { Message }                    from './types'
 
 type Theme = 'dark' | 'light'
 
@@ -16,19 +15,40 @@ function makeId() { return Math.random().toString(36).slice(2) }
 function initTheme(): Theme {
   const stored = localStorage.getItem('sb-theme')
   if (stored === 'light' || stored === 'dark') return stored
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+  return 'light'   // light is the primary theme; dark is secondary
+}
+
+function formatClock(d: Date): string {
+  const h = d.getHours().toString().padStart(2, '0')
+  const m = d.getMinutes().toString().padStart(2, '0')
+  const s = d.getSeconds().toString().padStart(2, '0')
+  return `${h}:${m}:${s}`
+}
+
+const statusLabel: Record<string, string> = {
+  connected:    'LIVE',
+  connecting:   'LINKING',
+  disconnected: 'OFFLINE',
+  error:        'FAULT',
 }
 
 export default function App() {
-  const [theme, setTheme]       = useState<Theme>(initTheme)
+  const [theme, setTheme] = useState<Theme>(initTheme)
   const { status, prediction, sendFrame } = useWebSocket()
-  const { speak }               = useTTS()
+  const { speak } = useTTS()
   const [messages, setMessages] = useState<Message[]>([])
+  const [clock, setClock] = useState(() => new Date())
+  const [sessionStart] = useState(() => Date.now())
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('sb-theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    const id = window.setInterval(() => setClock(new Date()), 1000)
+    return () => clearInterval(id)
+  }, [])
 
   const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark')
 
@@ -43,134 +63,236 @@ export default function App() {
 
   const handleSpeak = useCallback((text: string) => speak(text), [speak])
 
+  const ledClass =
+    status === 'connected'  ? 'led led-on led-blink' :
+    status === 'connecting' ? 'led led-warn led-blink' :
+    status === 'error'      ? 'led led-accent led-blink' :
+                              'led led-off'
+
+  const sessionMs = clock.getTime() - sessionStart
+  const sessionMin = Math.floor(sessionMs / 60000).toString().padStart(2, '0')
+  const sessionSec = Math.floor((sessionMs % 60000) / 1000).toString().padStart(2, '0')
+
   return (
     <div style={{
       height: '100vh', display: 'flex', flexDirection: 'column',
-      background: 'var(--base)', overflow: 'hidden',
+      background: 'var(--paper)', overflow: 'hidden',
     }}>
 
-      {/* ── Nav bar — glass ─────────────────────────────── */}
-      <motion.header
-        initial={{ y: -28, opacity: 0 }}
-        animate={{ y: 0,   opacity: 1 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="skeu-nav flex-shrink-0"
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '14px 28px', margin: '16px 16px 0', borderRadius: 22,
-        }}
-      >
-        {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          {/* Logo disc — neumorphic for tactile contrast against glass nav */}
-          <div className="skeu-raised" style={{
-            width: 44, height: 44, borderRadius: 14, flexShrink: 0,
+      {/* ── Header — industrial faceplate ─────────────── */}
+      <header style={{
+        display: 'flex', alignItems: 'stretch', justifyContent: 'space-between',
+        height: 64, flexShrink: 0,
+        background: 'var(--bar-bg)',
+        color: 'var(--bar-fg)',
+        borderBottom: '1px solid var(--line)',
+      }}>
+        {/* Brand block */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 16,
+          padding: '0 20px',
+          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+          minWidth: 280,
+        }}>
+          <div style={{
+            width: 40, height: 40,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'var(--accent)', color: '#fff',
+            borderRadius: 'var(--r-sm)',
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 14, fontWeight: 700, letterSpacing: '0.04em',
+            position: 'relative',
           }}>
+            SB
             <span style={{
-              fontSize: '0.75rem', fontWeight: 900, color: 'var(--green)',
-              letterSpacing: '-0.01em',
-            }}>SB</span>
+              position: 'absolute', top: 4, right: 4, width: 4, height: 4,
+              background: '#fff', borderRadius: '50%',
+            }} />
           </div>
 
-          <div>
-            <p style={{
-              fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)',
-              letterSpacing: '-0.02em', lineHeight: 1.1,
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <h1 style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 18, fontWeight: 700, letterSpacing: '0.04em',
+              color: 'var(--bar-fg)', lineHeight: 1,
             }}>
-              Sign<span style={{ color: 'var(--green)' }}>Bridge</span>
-            </p>
-            <p className="label" style={{ marginTop: 3, fontSize: '0.6rem' }}>
-              ASL · Two-Way Communication
-            </p>
-          </div>
-
-          {/* Glass version badge */}
-          <div className="skeu-chip" style={{ padding: '4px 12px', marginLeft: 4 }}>
-            <span className="label" style={{ color: 'var(--blue)', fontSize: '0.58rem' }}>v2.0</span>
+              SIGNBRIDGE
+            </h1>
+            <span className="hud" style={{
+              fontSize: 9, color: 'rgba(236, 235, 229, 0.55)', letterSpacing: '0.18em',
+            }}>
+              V2.0 · ASL TRANSLATOR
+            </span>
           </div>
         </div>
 
-        {/* Right: hint + toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          {/* Glass hint pill */}
-          <div className="skeu-chip" style={{
-            padding: '5px 14px',
-            display: 'none',  /* shown via sm:flex on wider viewports */
-          }}>
-            <p className="label" style={{ fontSize: '0.57rem', whiteSpace: 'nowrap' }}>
-              Hold sign 1.5 s&nbsp;·&nbsp;
-              <span style={{ color: 'var(--green)' }}>Speak &amp; Send</span>
-            </p>
+        {/* Center HUD — instrument readouts */}
+        <div style={{
+          flex: 1,
+          display: 'flex', alignItems: 'center',
+          padding: '0 24px',
+          gap: 28,
+        }}>
+          {/* Status group */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span className={ledClass} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <span className="hud" style={{
+                color: 'rgba(236, 235, 229, 0.45)', fontSize: 9, letterSpacing: '0.18em',
+              }}>
+                LINK
+              </span>
+              <span className="readout" style={{
+                fontSize: 13, fontWeight: 600,
+                color: status === 'connected'  ? 'var(--ok)' :
+                       status === 'connecting' ? 'var(--warn)' :
+                       status === 'error'      ? 'var(--accent)' :
+                                                 'rgba(236, 235, 229, 0.65)',
+              }}>
+                {statusLabel[status] ?? 'IDLE'}
+              </span>
+            </div>
           </div>
 
-          <AnimatePresence mode="wait">
-            <motion.button
-              key={theme}
-              initial={{ scale: 0.7, opacity: 0, rotate: -30 }}
-              animate={{ scale: 1,   opacity: 1, rotate: 0   }}
-              exit={{    scale: 0.7, opacity: 0, rotate:  30 }}
-              transition={{ duration: 0.2 }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{   scale: 0.9 }}
-              onClick={toggleTheme}
-              className="skeu-toggle"
-              style={{ width: 42, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-            >
-              {theme === 'light'
-                ? <Moon size={16} style={{ color: 'var(--blue)' }} />
-                : <Sun  size={16} style={{ color: 'var(--amber)' }} />}
-            </motion.button>
-          </AnimatePresence>
-        </div>
-      </motion.header>
+          <div className="bar-divider hud-optional-md" />
 
-      {/* ── Main grid ───────────────────────────────────── */}
+          <div className="hud-optional-md" style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <span className="hud" style={{
+              color: 'rgba(236, 235, 229, 0.45)', fontSize: 9, letterSpacing: '0.18em',
+              whiteSpace: 'nowrap',
+            }}>
+              MODEL
+            </span>
+            <span className="readout" style={{ fontSize: 13, color: 'var(--bar-fg)', whiteSpace: 'nowrap' }}>
+              ASL-RF · 29 CL
+            </span>
+          </div>
+
+          <div className="bar-divider hud-optional-lg" />
+
+          <div className="hud-optional-lg" style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <span className="hud" style={{
+              color: 'rgba(236, 235, 229, 0.45)', fontSize: 9, letterSpacing: '0.18em',
+              whiteSpace: 'nowrap',
+            }}>
+              SESSION
+            </span>
+            <span className="readout" style={{ fontSize: 13, color: 'var(--bar-fg)', whiteSpace: 'nowrap' }}>
+              {sessionMin}:{sessionSec}
+            </span>
+          </div>
+
+          <div className="bar-divider hud-optional-lg" />
+
+          <div className="hud-optional-lg" style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <span className="hud" style={{
+              color: 'rgba(236, 235, 229, 0.45)', fontSize: 9, letterSpacing: '0.18em',
+              whiteSpace: 'nowrap',
+            }}>
+              MSG / HOLD
+            </span>
+            <span className="readout" style={{ fontSize: 13, color: 'var(--bar-fg)', whiteSpace: 'nowrap' }}>
+              {messages.length.toString().padStart(2, '0')} · 1.50s
+            </span>
+          </div>
+
+          <div style={{ flex: 1 }} />
+
+          {/* Right cluster — clock */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Zap size={12} strokeWidth={1.8} style={{ color: 'rgba(236, 235, 229, 0.45)' }} />
+            <span className="readout" style={{
+              fontSize: 16, fontWeight: 500,
+              color: 'var(--bar-fg)', letterSpacing: '0.06em',
+            }}>
+              {formatClock(clock)}
+            </span>
+          </div>
+        </div>
+
+        {/* Theme toggle cell */}
+        <div style={{
+          display: 'flex', alignItems: 'center',
+          padding: '0 16px',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
+        }}>
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            style={{
+              width: 36, height: 36,
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid rgba(255, 255, 255, 0.10)',
+              borderRadius: 'var(--r-sm)',
+              color: 'rgba(236, 235, 229, 0.85)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'background 220ms cubic-bezier(0.32,0.72,0,1), color 220ms cubic-bezier(0.32,0.72,0,1), border-color 220ms cubic-bezier(0.32,0.72,0,1), transform 220ms cubic-bezier(0.32,0.72,0,1), box-shadow 220ms cubic-bezier(0.32,0.72,0,1)',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.10)'
+              e.currentTarget.style.color = '#fff'
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.20)'
+              e.currentTarget.style.transform = 'translateY(-1px)'
+              e.currentTarget.style.boxShadow = '0 6px 14px rgba(0,0,0,0.32)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'
+              e.currentTarget.style.color = 'rgba(236, 235, 229, 0.85)'
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.10)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+          >
+            {theme === 'light'
+              ? <Moon size={14} strokeWidth={1.7} />
+              : <Sun  size={14} strokeWidth={1.7} />}
+          </button>
+        </div>
+      </header>
+
+      {/* ── Main — two panels sitting on the page ───────── */}
       <main style={{
         flex: 1, minHeight: 0,
-        display: 'grid', gridTemplateColumns: '1fr 1fr',
-        gap: 16, padding: 16,
+        display: 'grid', gridTemplateColumns: '1.05fr 1fr',
+        gap: 14, padding: 14,
       }}>
 
         {/* Left — camera */}
-        <motion.div
-          initial={{ x: -40, opacity: 0, scale: 0.97 }}
-          animate={{ x: 0,   opacity: 1, scale: 1    }}
-          transition={{ duration: 0.55, delay: 0.1, ease: [0.34, 1.1, 0.64, 1] }}
-          className="skeu-panel"
-          style={{ display: 'flex', flexDirection: 'column', padding: 24, minHeight: 0, overflow: 'hidden' }}
+        <section
+          className="panel"
+          style={{
+            display: 'flex', flexDirection: 'column',
+            minHeight: 0, overflow: 'hidden',
+          }}
         >
           <CameraPanel sendFrame={sendFrame} prediction={prediction} status={status} />
-        </motion.div>
+        </section>
 
-        {/* Right — stacked conversation panel */}
-        <motion.div
-          initial={{ x: 40, opacity: 0, scale: 0.97 }}
-          animate={{ x: 0,  opacity: 1, scale: 1    }}
-          transition={{ duration: 0.55, delay: 0.2, ease: [0.34, 1.1, 0.64, 1] }}
-          className="skeu-panel"
-          style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}
+        {/* Right — conversation column */}
+        <section
+          className="panel"
+          style={{
+            display: 'flex', flexDirection: 'column',
+            minHeight: 0, overflow: 'hidden',
+          }}
         >
-          {/* ① Transcript — grows to fill all available space */}
-          <div style={{ flex: 1, minHeight: 0, padding: '24px 24px 16px', overflow: 'hidden' }}>
+          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <TranscriptPanel messages={messages} onSpeak={handleSpeak} />
           </div>
 
-          <div className="skeu-divider" />
+          <div className="hairline" />
 
-          {/* ② Sentence builder */}
-          <div style={{ padding: '20px 24px', flexShrink: 0 }}>
+          <div style={{ flexShrink: 0 }}>
             <SentenceBuilder prediction={prediction} onSend={handleSignerSend} />
           </div>
 
-          <div className="skeu-divider" />
+          <div className="hairline" />
 
-          {/* ③ Listener reply */}
-          <div style={{ padding: '16px 24px 22px', flexShrink: 0 }}>
+          <div style={{ flexShrink: 0 }}>
             <SpeechInput onMessage={handleListenerMessage} />
           </div>
-        </motion.div>
+        </section>
 
       </main>
     </div>

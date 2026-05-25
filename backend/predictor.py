@@ -39,7 +39,7 @@ _hands    = _mp_hands.Hands(
     # one frame at a time (back-pressure on the client), so this is fine.
     static_image_mode=True,
     max_num_hands=1,
-    min_detection_confidence=0.5,  # slightly higher threshold reduces false positives
+    min_detection_confidence=0.3,  # match preprocess.py — catches more edge angles
     min_tracking_confidence=0.5,
 )
 
@@ -109,6 +109,12 @@ def predict_from_bytes(frame_bytes: bytes) -> dict:
     top_idx      = int(np.argmax(probs))
     confidence   = float(probs[top_idx])
     letter       = _label_encoder.inverse_transform([top_idx])[0]
+
+    # The "nothing" class means "no hand visible" — if the classifier
+    # picks it for a frame where MediaPipe actually found a hand, treat
+    # it as a non-detection so it never lands in the user's sentence.
+    if letter == "nothing":
+        return {"hand_detected": False, "letter": None, "confidence": None}
 
     return {
         "hand_detected": True,

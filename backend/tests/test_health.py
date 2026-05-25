@@ -33,6 +33,6 @@ def test_health_classes_include_standard_asl_letters(client):
 
 
 def test_health_classes_count(client):
-    """Should have exactly 28 classes: a-z + del + space."""
+    """Should have exactly 29 classes: a-z + del + space + nothing."""
     data = client.get('/health').json()
-    assert len(data['classes']) == 28
+    assert len(data['classes']) == 29

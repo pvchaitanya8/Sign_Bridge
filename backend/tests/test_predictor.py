@@ -126,8 +126,11 @@ class TestPredictFromBytes:
 # Model bundle sanity checks
 # ─────────────────────────────────────────────────────────────────────────────
 class TestModelBundle:
-    def test_label_encoder_has_28_classes(self):
-        assert len(predictor._label_encoder.classes_) == 28
+    def test_label_encoder_has_29_classes(self):
+        # 26 letters + 'del' + 'space' + 'nothing'
+        # 'nothing' is the model's "no hand" sentinel — predictor.py
+        # filters it at inference time so it never reaches the client.
+        assert len(predictor._label_encoder.classes_) == 29
 
     def test_label_encoder_contains_del_and_space(self):
         classes = list(predictor._label_encoder.classes_)
@@ -138,10 +141,10 @@ class TestModelBundle:
         assert hasattr(predictor._classifier, 'predict_proba')
 
     def test_classifier_output_shape(self):
-        """predict_proba on a 63-feature vector should return 28 probabilities."""
+        """predict_proba on a 63-feature vector should return one probability per class."""
         X = np.zeros((1, 63))
         probs = predictor._classifier.predict_proba(X)[0]
-        assert len(probs) == 28
+        assert len(probs) == 29
 
     def test_classifier_probs_sum_to_one(self):
         X = np.zeros((1, 63))
